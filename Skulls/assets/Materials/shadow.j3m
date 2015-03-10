@@ -1,0 +1,9 @@
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+        ColorMap : Flip Textures/shadow.png
+     }
+    AdditionalRenderState {
+      Blend PremultAlpha
+      FaceCull Off
+    }
+}

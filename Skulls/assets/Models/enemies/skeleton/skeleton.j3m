@@ -1,0 +1,8 @@
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+        ColorMap : Flip Models/enemies/skeleton/micro_skeleton_diffuse_mobile.png
+        AlphaDiscardThreshold : 0.6
+     }
+    AdditionalRenderState {
+    }
+}

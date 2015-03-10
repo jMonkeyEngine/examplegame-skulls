@@ -1,0 +1,10 @@
+Material My Material : Common/MatDefs/Misc/Particle.j3md {
+     MaterialParameters {
+        Texture : Models/effects/explosion/smoketrail.png
+     }
+    AdditionalRenderState {
+      FaceCull Off
+      Blend Color
+      DepthTest On
+    }
+}

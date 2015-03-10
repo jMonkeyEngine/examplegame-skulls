@@ -1,0 +1,8 @@
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+        ColorMap : Flip Models/levels/level2.png
+        Color : 1.0 1.0 0.6 0.5
+     }
+    AdditionalRenderState {
+    }
+}

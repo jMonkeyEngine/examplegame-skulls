@@ -1,0 +1,8 @@
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+        LightMap : Flip Models/static/dungeon-lighmap.png
+        ColorMap : Flip Models/static/dungeon-color.png
+     }
+    AdditionalRenderState {
+    }
+}

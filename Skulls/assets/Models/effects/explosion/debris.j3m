@@ -1,0 +1,12 @@
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+        ColorMap : Models/effects/explosion/Debris.png
+        AlphaDiscardThreshold : 0.5
+     }
+    AdditionalRenderState {
+      FaceCull Off
+      Blend PremultAlpha
+      DepthTest On
+      AlphaTestFalloff 0.5
+    }
+}

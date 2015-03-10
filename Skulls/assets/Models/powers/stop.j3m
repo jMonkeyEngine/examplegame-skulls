@@ -1,0 +1,9 @@
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+
+        ColorMap : Flip Models/powers/stop.png
+        LightMap : Flip Models/powers/stoplighting.png
+     }
+    AdditionalRenderState {
+    }
+}
