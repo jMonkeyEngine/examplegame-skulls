@@ -28,7 +28,7 @@ public class MainApplication extends Base3DApplication {
     public MainApplication() {
         //This constructor is used to initialize app specific things
         //Title, native width, native height, gameSaveDataFile, font if not default, splash if needed, enablephysics, enable size selection
-        super("Skulls", 1280, 720, "skulls.save", null, null, true);
+        super("Skulls", 1280, 720, "skulls.save", null, null, false);
     }
 
     public static void main(String[] args) {

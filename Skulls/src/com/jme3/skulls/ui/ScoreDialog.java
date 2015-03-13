@@ -36,12 +36,10 @@ public class ScoreDialog extends PopupDialog {
         
         powersPanel = new VPanel(window, this, null, 80, window.getHeight());
         powersPanel.leftCenter(0, 0);
-//        powersPanel.getWidgetNode().move(0, 0, -2f);
         this.add(powersPanel);
         
         powersPanel = new VPanel(window, this, null, 80, window.getHeight());
         powersPanel.rightCenter(0, 0);
-//        powersPanel.getWidgetNode().move(0, 0, -2f);
         this.add(powersPanel);
         
         createPowerButton("Resources/blank.png", null, 0);
