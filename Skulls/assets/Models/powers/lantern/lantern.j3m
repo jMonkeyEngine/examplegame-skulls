@@ -4,6 +4,5 @@ Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
         AlphaDiscardThreshold : 0.5
      }
     AdditionalRenderState {
-      Blend AlphaAdditive
     }
 }

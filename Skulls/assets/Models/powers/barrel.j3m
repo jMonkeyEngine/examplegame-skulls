@@ -4,6 +4,6 @@ Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
         Color : 1.0 1.0 1.0 1.0
      }
     AdditionalRenderState {
-      Blend AlphaAdditive
+
     }
 }

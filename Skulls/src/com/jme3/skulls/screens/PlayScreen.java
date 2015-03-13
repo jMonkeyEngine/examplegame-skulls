@@ -5,6 +5,7 @@
 package com.jme3.skulls.screens;
 
 import com.bruynhuis.galago.app.BaseApplication;
+import com.bruynhuis.galago.control.FlickerControl;
 import com.bruynhuis.galago.games.simplecollision.SimpleCollisionGameListener;
 import com.bruynhuis.galago.listener.PickEvent;
 import com.bruynhuis.galago.listener.PickListener;
@@ -27,8 +28,10 @@ import com.jme3.skulls.ui.WinDialog;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.debug.WireBox;
 
 /**
  * This will be the play screen. This screen will show when a player decided to
@@ -52,14 +55,12 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     private Player player;
     private float cameraHeight = 20f;
     private TouchPickListener touchPickListener;
-    private Vector3f vector = new Vector3f(0, 0, 5);
-    private Vector3f focus = new Vector3f();
     private float dragSpeed = 30f;
     private boolean test = false;
     private Node cameraJointNode;
     private CameraNode cameraNode;
     private Timer secondsTimer = new Timer(100);
-//    private Geometry marker;
+    private Geometry marker;
     private Spatial powerSpatial;
 
     @Override
@@ -80,7 +81,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
                     }
                     
                     powerSpatial = game.getModel(uid);
-                    powerSpatial.setQueueBucket(RenderQueue.Bucket.Transparent);
+                    powerSpatial.addControl(new FlickerControl(0.6f));
                     rootNode.attachChild(powerSpatial);
                     
                 }
@@ -242,12 +243,12 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
         scoreDialog.setEnemyCount(0);
         scoreDialog.hide();
 
-//        //create a market geometry
-//        WireBox wb = new WireBox(Game.TILE_SIZE*0.5f, 0.02f, Game.TILE_SIZE*0.5f);
-//        wb.setLineWidth(2);
-//        marker = new Geometry("MARKER", wb);
-//        marker.setMaterial(baseApplication.getAssetManager().loadMaterial("Common/Materials/RedColor.j3m"));
-//        rootNode.attachChild(marker);
+        //create a market geometry
+        WireBox wb = new WireBox(Game.TILE_SIZE*0.5f, 0.02f, Game.TILE_SIZE*0.5f);
+        wb.setLineWidth(2);
+        marker = new Geometry("MARKER", wb);
+        marker.setMaterial(baseApplication.getAssetManager().loadMaterial("Common/Materials/RedColor.j3m"));
+        rootNode.attachChild(marker);
 
     }
 
@@ -492,6 +493,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
 
                 //Only if a valid tile was selected
                 if (selectedTile != null) {
+                    game.getBaseApplication().getSoundManager().playSound("block");
                     game.loadPower(player.getSelectedPower(), selectedTile);
                     scoreDialog.usePower(player.getSelectedPower());
                     player.setSelectedPower(null);
@@ -533,21 +535,17 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
         if (isActive() && game.isStarted() && !game.isPaused() && player.getSelectedPower() == null && pickEvent.isKeyDown()) {
 
             if (pickEvent.isRight()) {
-//                doPanCamera(pickEvent.getAnalogValue(), 0);
 //                cameraJointNode.rotate(0, -pickEvent.getAnalogValue()*dragSpeed, 0);
                 cameraJointNode.move(cameraJointNode.getWorldRotation().getRotationColumn(0).mult(-pickEvent.getAnalogValue() * dragSpeed));
 
             } else if (pickEvent.isUp()) {
-//                doPanCamera(0, -pickEvent.getAnalogValue());
                 cameraJointNode.move(cameraJointNode.getWorldRotation().getRotationColumn(2).mult(pickEvent.getAnalogValue() * dragSpeed));
 
             } else if (pickEvent.isLeft()) {
-//                doPanCamera(-pickEvent.getAnalogValue(), 0);
 //                cameraJointNode.rotate(0, pickEvent.getAnalogValue()*dragSpeed, 0);
                 cameraJointNode.move(cameraJointNode.getWorldRotation().getRotationColumn(0).mult(pickEvent.getAnalogValue() * dragSpeed));
 
             } else if (pickEvent.isDown()) {
-//                doPanCamera(0, pickEvent.getAnalogValue());
                 cameraJointNode.move(cameraJointNode.getWorldRotation().getRotationColumn(2).mult(-pickEvent.getAnalogValue() * dragSpeed));
 
             }
@@ -563,46 +561,33 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
 
             //Only if a valid tile was selected
             if (selectedTile != null) {
-//                marker.setCullHint(Spatial.CullHint.Never);
-//                marker.setLocalTranslation(new Vector3f(selectedTile.getxPos() * Game.TILE_SIZE, 0.1f, selectedTile.getzPos() * Game.TILE_SIZE));
+                marker.setCullHint(Spatial.CullHint.Never);
+                marker.setLocalTranslation(new Vector3f(selectedTile.getxPos() * Game.TILE_SIZE, 0.1f, selectedTile.getzPos() * Game.TILE_SIZE));
                 
-//                if (selectedTile.getName().equals(Game.FLOOR)) {
-//                    marker.getMaterial().setColor("Color", ColorRGBA.Green);
-//                } else {
-//                    marker.getMaterial().setColor("Color", ColorRGBA.Red);
-//                }
+                if (selectedTile.getName().equals(Game.FLOOR)) {
+                    marker.getMaterial().setColor("Color", ColorRGBA.Green);
+                } else {
+                    marker.getMaterial().setColor("Color", ColorRGBA.Red);
+                }
                 
                 if (powerSpatial != null) {
                     powerSpatial.setLocalTranslation(new Vector3f(selectedTile.getxPos() * Game.TILE_SIZE, 0.1f, selectedTile.getzPos() * Game.TILE_SIZE));
-//                    powerSpatial.setLocalTranslation(marker.getLocalTranslation());
-                    if (selectedTile.getName().equals(Game.FLOOR)) {
-                        powerSpatial.setCullHint(Spatial.CullHint.Never);
-                    } else {
-                        powerSpatial.setCullHint(Spatial.CullHint.Always);                    
-                    }
+                    powerSpatial.setLocalTranslation(marker.getLocalTranslation());
                     
                 }
                 
             } else {
-//                marker.setCullHint(Spatial.CullHint.Always);
-//                
-//                if (powerSpatial != null) {
-//                    marker.setCullHint(Spatial.CullHint.Always);
-//                }
+                marker.setCullHint(Spatial.CullHint.Always);
+                
+                if (powerSpatial != null) {
+                    marker.setCullHint(Spatial.CullHint.Always);
+                }
             }
         }
     }
-//    protected void doPanCamera(float left, float up) {
-//        camera.getLeft().mult(left * dragSpeed, vector);
-//        vector.scaleAdd(up * dragSpeed, camera.getUp(), vector);
-//        vector.multLocal(camera.getLocation().distance(focus));
-//        camera.setLocation(camera.getLocation().add(vector));
-//        focus.addLocal(vector);
-//    }
 
     @Override
     protected void pause() {
         doPauseGame();
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
