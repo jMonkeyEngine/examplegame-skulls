@@ -47,7 +47,7 @@ public class MainApplication extends Base3DApplication {
     @Override
     protected void postInitApp() {
         //This method is called after all screens and game data is loaded
-        showScreen("play");
+        showScreen("menu");
 
     }
 
