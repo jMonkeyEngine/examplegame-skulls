@@ -1,0 +1,9 @@
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+        ColorMap : Flip Models/powers/lantern/LANTERN_TEXTURE.png
+        AlphaDiscardThreshold : 0.5
+     }
+    AdditionalRenderState {
+      Blend AlphaAdditive
+    }
+}

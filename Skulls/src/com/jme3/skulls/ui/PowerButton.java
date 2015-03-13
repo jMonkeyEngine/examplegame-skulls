@@ -27,7 +27,7 @@ public class PowerButton extends TouchButton {
     private boolean disabled = false;
 
     public PowerButton(Panel panel, String id, String image, int regenSeconds) {
-        super(panel, id, image, 64, 64);
+        super(panel, id, image, 60, 60);
         setFontSize(20);
         setText(" ");
         setTextColor(ColorRGBA.White);

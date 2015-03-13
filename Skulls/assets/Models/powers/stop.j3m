@@ -5,5 +5,7 @@ Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
         LightMap : Flip Models/powers/stoplighting.png
      }
     AdditionalRenderState {
+
+        Blend AlphaAdditive
     }
 }

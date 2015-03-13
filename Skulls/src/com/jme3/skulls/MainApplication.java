@@ -47,7 +47,7 @@ public class MainApplication extends Base3DApplication {
     @Override
     protected void postInitApp() {
         //This method is called after all screens and game data is loaded
-        showScreen("menu");
+        showScreen("play");
 
     }
 
@@ -67,17 +67,41 @@ public class MainApplication extends Base3DApplication {
         soundManager.loadSoundFx("mate", "Sounds/mate.ogg");
         soundManager.setSoundVolume("mate", 0.1f);
 
-        soundManager.loadSoundFx("death", "Sounds/death.ogg");
+        soundManager.loadSoundFx("death", "Sounds/SFX/Misc/Death/skull-death.ogg");
         soundManager.setSoundVolume("death", 0.6f);
 
         soundManager.loadSoundFx("button", "Sounds/button.ogg");
         soundManager.setSoundVolume("button", 0.5f);
         
-        soundManager.loadMusic("menu", "Sounds/menu.ogg");
-        soundManager.setMusicVolume("menu", 0.5f);
+        soundManager.loadSoundFx("bomb", "Sounds/SFX/Powers/Barrel-bomb/explosion_deep_echo_01.ogg");
+        soundManager.setSoundVolume("bomb", 0.7f);
+        
+        soundManager.loadSoundFx("timer", "Sounds/timer.ogg");
+        soundManager.setSoundVolume("timer", 0.4f);
+        
+        soundManager.loadSoundFx("switch", "Sounds/SFX/Powers/Type-switch/161628__crazyfrog249__blop.ogg");
+        soundManager.setSoundVolume("switch", 0.8f);
+        
+        soundManager.loadSoundFx("block", "Sounds/SFX/Powers/Blockade/211500__taira-komori__knocking-wall.ogg");
+        soundManager.setSoundVolume("block", 0.8f);
+        
+        soundManager.loadSoundFx("curse", "Sounds/SFX/Powers/Curse/necro-death.ogg");
+        soundManager.setSoundVolume("curse", 1f);
+        
+        soundManager.loadMusic("bubble", "Sounds/SFX/Powers/Poison/bubble.ogg");
+        soundManager.setMusicVolume("bubble", 0.5f);
+        
+        soundManager.loadSoundFx("mutant", "Sounds/SFX/Powers/Mutant/217282__jarredgibb__zombie4.ogg");
+        soundManager.setSoundVolume("mutant", 0.6f);
+        
+        
+        //Music
+        
+        soundManager.loadMusic("menu", "Sounds/Music/Dark_Fun.ogg");
+        soundManager.setMusicVolume("menu", 0.3f);
 
-        soundManager.loadMusic("level", "Sounds/level.ogg");
-        soundManager.setMusicVolume("level", 0.5f);
+        soundManager.loadMusic("level", "Sounds/Music/haunted_village.ogg");
+        soundManager.setMusicVolume("level", 0.3f);
 
     }
 
@@ -106,12 +130,15 @@ public class MainApplication extends Base3DApplication {
         modelManager.loadModel("Models/enemies/shadow.j3o");
 
         modelManager.loadModel("Models/powers/poison.j3o");
-        modelManager.loadModel("Models/powers/male.j3o");
-        modelManager.loadModel("Models/powers/female.j3o");
+        modelManager.loadModel("Models/powers/plant2/plant2.j3o");
+        modelManager.loadModel("Models/powers/plant1/plant1.j3o");
         modelManager.loadModel("Models/powers/stop.j3o");
         modelManager.loadModel("Models/powers/bomb.j3o");
+        modelManager.loadModel("Models/powers/barrel.j3o");
         modelManager.loadModel("Models/powers/sterilize.j3o");
         modelManager.loadModel("Models/powers/gas.j3o");
+        modelManager.loadModel("Models/powers/acid.j3o");
+        modelManager.loadModel("Models/powers/lantern/lantern.j3o");
 
         modelManager.loadModel("Models/static/dungeon.j3o");
         modelManager.loadMaterial("Models/static/dungeon.j3m");

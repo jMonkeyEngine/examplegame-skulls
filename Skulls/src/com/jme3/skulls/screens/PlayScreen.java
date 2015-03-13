@@ -25,11 +25,10 @@ import com.jme3.skulls.ui.ScoreDialog;
 import com.jme3.skulls.ui.StartGameDialog;
 import com.jme3.skulls.ui.WinDialog;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.WireBox;
 
 /**
  * This will be the play screen. This screen will show when a player decided to
@@ -60,7 +59,8 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     private Node cameraJointNode;
     private CameraNode cameraNode;
     private Timer secondsTimer = new Timer(100);
-    private Geometry marker;
+//    private Geometry marker;
+    private Spatial powerSpatial;
 
     @Override
     protected void init() {
@@ -73,6 +73,16 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
                 if (isActive()) {
                     log(uid);
                     player.setSelectedPower(uid);
+                    
+                    //First remove the old spatial
+                    if (powerSpatial != null) {
+                        powerSpatial.removeFromParent();
+                    }
+                    
+                    powerSpatial = game.getModel(uid);
+                    powerSpatial.setQueueBucket(RenderQueue.Bucket.Transparent);
+                    rootNode.attachChild(powerSpatial);
+                    
                 }
             }
         });
@@ -232,12 +242,12 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
         scoreDialog.setEnemyCount(0);
         scoreDialog.hide();
 
-        //create a market geometry
-        WireBox wb = new WireBox(Game.TILE_SIZE*0.5f, 0.02f, Game.TILE_SIZE*0.5f);
-        wb.setLineWidth(2);
-        marker = new Geometry("MARKER", wb);
-        marker.setMaterial(baseApplication.getAssetManager().loadMaterial("Common/Materials/RedColor.j3m"));
-        rootNode.attachChild(marker);
+//        //create a market geometry
+//        WireBox wb = new WireBox(Game.TILE_SIZE*0.5f, 0.02f, Game.TILE_SIZE*0.5f);
+//        wb.setLineWidth(2);
+//        marker = new Geometry("MARKER", wb);
+//        marker.setMaterial(baseApplication.getAssetManager().loadMaterial("Common/Materials/RedColor.j3m"));
+//        rootNode.attachChild(marker);
 
     }
 
@@ -485,6 +495,9 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
                     game.loadPower(player.getSelectedPower(), selectedTile);
                     scoreDialog.usePower(player.getSelectedPower());
                     player.setSelectedPower(null);
+                    if (powerSpatial != null) {
+                        powerSpatial.removeFromParent();
+                    }
                 }
 
             }
@@ -544,23 +557,38 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
         }
 
         if (isActive() && game.isStarted() && !game.isPaused() && pickEvent.getContactPoint() != null) {
-            log("Mouse at: " + pickEvent.getContactPoint());
+//            log("Mouse at: " + pickEvent.getContactPoint());
             
             Tile selectedTile = game.getTileFromContactPoint(pickEvent.getContactPoint().x, pickEvent.getContactPoint().z);
 
             //Only if a valid tile was selected
             if (selectedTile != null) {
-                marker.setCullHint(Spatial.CullHint.Never);
-                marker.setLocalTranslation(new Vector3f(selectedTile.getxPos() * Game.TILE_SIZE, 0.1f, selectedTile.getzPos() * Game.TILE_SIZE));
+//                marker.setCullHint(Spatial.CullHint.Never);
+//                marker.setLocalTranslation(new Vector3f(selectedTile.getxPos() * Game.TILE_SIZE, 0.1f, selectedTile.getzPos() * Game.TILE_SIZE));
                 
-                if (selectedTile.getName().equals(Game.FLOOR)) {
-                    marker.getMaterial().setColor("Color", ColorRGBA.Green);
-                } else {
-                    marker.getMaterial().setColor("Color", ColorRGBA.Red);
+//                if (selectedTile.getName().equals(Game.FLOOR)) {
+//                    marker.getMaterial().setColor("Color", ColorRGBA.Green);
+//                } else {
+//                    marker.getMaterial().setColor("Color", ColorRGBA.Red);
+//                }
+                
+                if (powerSpatial != null) {
+                    powerSpatial.setLocalTranslation(new Vector3f(selectedTile.getxPos() * Game.TILE_SIZE, 0.1f, selectedTile.getzPos() * Game.TILE_SIZE));
+//                    powerSpatial.setLocalTranslation(marker.getLocalTranslation());
+                    if (selectedTile.getName().equals(Game.FLOOR)) {
+                        powerSpatial.setCullHint(Spatial.CullHint.Never);
+                    } else {
+                        powerSpatial.setCullHint(Spatial.CullHint.Always);                    
+                    }
+                    
                 }
                 
             } else {
-                marker.setCullHint(Spatial.CullHint.Always);
+//                marker.setCullHint(Spatial.CullHint.Always);
+//                
+//                if (powerSpatial != null) {
+//                    marker.setCullHint(Spatial.CullHint.Always);
+//                }
             }
         }
     }

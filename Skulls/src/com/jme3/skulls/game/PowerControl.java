@@ -5,9 +5,14 @@
 package com.jme3.skulls.game;
 
 import com.bruynhuis.galago.util.Timer;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import java.util.ArrayList;
 
@@ -27,6 +32,7 @@ public class PowerControl extends AbstractControl {
     protected int health = 4;
     protected Timer bombTickTimer = new Timer(300);
     protected Timer bombActiveTimer = new Timer(100);
+    protected Timer bombCountDownTimer = new Timer(32);
     protected Timer sterilizeTimer = new Timer(600);
     protected Timer gasExpandTimer = new Timer(100);
     protected Timer gasTimer = new Timer(700);
@@ -35,6 +41,9 @@ public class PowerControl extends AbstractControl {
     protected Tile targetTile;
     protected Tile fromTile;
     protected float gasTime = -1f;
+    protected boolean explosion = false;
+    protected boolean redColor = false;
+    protected float timerCountDecelerate = 3.2f;
 
     public PowerControl(Game game, String type, Tile targetTile) {
         this.game = game;
@@ -45,14 +54,22 @@ public class PowerControl extends AbstractControl {
 
     private void init() {
 
+        if (type.equals(Player.POWER_POIZON)) {
+            game.getBaseApplication().getSoundManager().playMusic("bubble");
+        }
+
         if (type.equals(Player.POWER_BOMB)) {
             bombTickTimer.start();
             active = false;
-            spatial.setLocalScale(0f);
+            spatial.setLocalScale(1f);
+
+            if (!explosion) {
+                bombCountDownTimer.start();
+            }
 
         }
 
-        if (type.equals(Player.POWER_STERILIZATION)) {
+        if (type.equals(Player.POWER_CURSE)) {
             sterilizeTimer.start();
             active = true;
             spatial.setLocalScale(0.02f);
@@ -71,6 +88,10 @@ public class PowerControl extends AbstractControl {
 
         }
 
+    }
+
+    public void setExplosion(boolean explosion) {
+        this.explosion = explosion;
     }
 
     public void setGasTotalTime(float gasTime) {
@@ -114,11 +135,15 @@ public class PowerControl extends AbstractControl {
                 //When bomb tick time is complete we have to activate it
                 bombTickTimer.update(tpf);
                 if (bombTickTimer.finished()) {
+                    if (!explosion) {
+                        bombCountDownTimer.stop();
+                        game.getBaseApplication().getSoundManager().playSound("bomb");
+                    }
                     active = true;
-//                    game.getBaseApplication().getEffectManager().doEffect("bomb", spatial.getWorldTranslation().add(0, 1, 0));
+                    game.getBaseApplication().getEffectManager().doEffect("bomb", spatial.getWorldTranslation().add(0, 1, 0), bombActiveTimer.getMaxTime());
                     bombTickTimer.stop();
                     bombActiveTimer.start();
-                    spatial.setLocalScale(1);
+                    spatial.setLocalScale(0);
 
                     //get all tiles forward or sideways. it will not return the from tile
                     ArrayList<Tile> tiles = game.getAllAdjacentTile(targetTile, fromTile);
@@ -129,13 +154,36 @@ public class PowerControl extends AbstractControl {
                             activeTime = 50;
                         }
 
+                        //Reproduce new spread
                         if ((fromTile == null) || (fromTile != null && tiles.size() == 1)) {
                             for (int i = 0; i < tiles.size(); i++) {
                                 Tile tile = tiles.get(i);
-                                PowerControl pc = game.loadPower(type, tile);
-                                pc.setFromTile(targetTile);
-                                pc.setBombTickTime(10);
-//                                pc.setBombActiveTime(activeTime);
+                                boolean addTile = true;
+
+                                //Make sure the bomb power doesn't go around corners
+                                if (fromTile != null && (fromTile.getxPos() != tile.getxPos() && fromTile.getzPos() != tile.getzPos())) {
+                                    addTile = false;
+                                }
+
+                                if (addTile) {
+                                    Spatial sp = game.getBaseApplication().getModelManager().getModel("Models/powers/bomb.j3o");
+                                    sp.setLocalTranslation(new Vector3f(tile.getxPos() * Game.TILE_SIZE, 0, tile.getzPos() * Game.TILE_SIZE));
+                                    sp.setUserData("power", type);
+                                    game.addObstacle(sp);
+
+                                    PowerControl pc = new PowerControl(game, type, tile);
+                                    pc.setExplosion(true);
+                                    pc.setFromTile(targetTile);
+                                    pc.setBombTickTime(50);
+                                    sp.addControl(pc);
+
+                                }
+
+
+//                                PowerControl pc = game.loadPower(type, tile);
+//                                pc.setFromTile(targetTile);
+//                                pc.setBombTickTime(10);
+////                                pc.setBombActiveTime(activeTime);
 
                             }
                         }
@@ -156,9 +204,32 @@ public class PowerControl extends AbstractControl {
                     }
                 }
 
+                if (!explosion) {
+                    bombCountDownTimer.update(tpf);
+                    if (bombCountDownTimer.finished()) {
+                        Geometry g = (Geometry) ((Node) spatial).getChild("barrel1");
+                        redColor = !redColor;
+                        if (redColor) {
+                            game.getBaseApplication().getSoundManager().playSound("timer");
+                            g.getMaterial().setColor("Color", ColorRGBA.Red);
+                        } else {
+                            g.getMaterial().setColor("Color", ColorRGBA.LightGray);
+                        }
+
+
+                        bombCountDownTimer.setMaxTime(bombCountDownTimer.getMaxTime() - timerCountDecelerate);
+                        timerCountDecelerate -= 0.2f;
+                        if (bombCountDownTimer.getMaxTime() <= 0f) {
+                            bombCountDownTimer.stop();
+                        } else {
+                            bombCountDownTimer.reset();
+                        }
+                    }
+                }
+
             }
 
-            if (type.equals(Player.POWER_STERILIZATION)) {
+            if (type.equals(Player.POWER_CURSE)) {
                 sterilizeTimer.update(tpf);
 
                 if (active) {
@@ -194,6 +265,7 @@ public class PowerControl extends AbstractControl {
                             Tile tile = tiles.get(i);
                             if (FastMath.nextRandomInt(0, 2) > 0) {
                                 PowerControl pc = game.loadPower(type, tile);
+//                                pc.setExplosion(true);
                                 pc.setFromTile(targetTile);
                                 pc.setGasTotalTime(gasTimer.getCounter());
                             }
@@ -241,10 +313,12 @@ public class PowerControl extends AbstractControl {
         if (type.equals(Player.POWER_POIZON)) {
             enemyControl.doDie();
             game.addScore(10);
+            game.getBaseApplication().getSoundManager().stopMusic("bubble");
             doDispose();
 
         } else if (type.equals(Player.POWER_FEMALE)) {
 //            if (!enemyControl.isChild()) {
+            game.getBaseApplication().getSoundManager().playSound("switch");
             enemyControl.changeToFemale();
             doDispose();
 //            }
@@ -252,12 +326,14 @@ public class PowerControl extends AbstractControl {
 
         } else if (type.equals(Player.POWER_MALE)) {
 //            if (!enemyControl.isChild()) {
+            game.getBaseApplication().getSoundManager().playSound("switch");
             enemyControl.changeToMale();
             doDispose();
 //            }
 
         } else if (type.equals(Player.POWER_STOP)) {
             if (active) {
+                game.getBaseApplication().getSoundManager().playSound("block");
                 enemyControl.turnBack();
                 inactiveTimer.reset();
                 health--;
@@ -274,9 +350,13 @@ public class PowerControl extends AbstractControl {
                 game.addScore(10);
             }
 
-        } else if (type.equals(Player.POWER_STERILIZATION)) {
+        } else if (type.equals(Player.POWER_CURSE)) {
             if (active) {
-                enemyControl.setSterile(true);
+                if (!enemyControl.isCursed()) {
+                    game.getBaseApplication().getSoundManager().playSound("curse");
+                }
+
+                enemyControl.setCursed(true);
             }
 
         } else if (type.equals(Player.POWER_GAS)) {

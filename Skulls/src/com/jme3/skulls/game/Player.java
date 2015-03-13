@@ -22,7 +22,7 @@ public class Player extends SimpleCollisionPlayer {
      */
     public static final String POWER_BOMB = "power_bomb";
     public static final String POWER_GAS = "power_gas";
-    public static final String POWER_STERILIZATION = "power_ster";
+    public static final String POWER_CURSE = "power_curse";
     public static final String POWER_POIZON = "power_poison";
     public static final String POWER_MALE = "power_male";
     public static final String POWER_FEMALE = "power_female";

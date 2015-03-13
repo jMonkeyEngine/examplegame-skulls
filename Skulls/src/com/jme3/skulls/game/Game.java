@@ -13,6 +13,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -456,7 +457,7 @@ public class Game extends SimpleCollisionGame {
     public void loadMale(Tile tile) {
         Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/ghost/ghost.j3o");
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
-        createEnemy(enemySpatial, Vector3f.UNIT_Y);
+        createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
         EnemyControl ec = new EnemyControl(this, EnemyControl.TYPE_MALE, tile);
         enemySpatial.addControl(ec);
@@ -467,7 +468,7 @@ public class Game extends SimpleCollisionGame {
     public void loadFemale(Tile tile) {
         Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/mummy/mummy.j3o");
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
-        createEnemy(enemySpatial, Vector3f.UNIT_Y);
+        createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
         EnemyControl ec = new EnemyControl(this, EnemyControl.TYPE_FEMALE, tile);
         enemySpatial.addControl(ec);
@@ -478,7 +479,7 @@ public class Game extends SimpleCollisionGame {
     public void loadYoung(Tile tile) {
         Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/skeleton/skeleton.j3o");
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
-        createEnemy(enemySpatial, Vector3f.UNIT_Y);
+        createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
         EnemyControl ec = new EnemyControl(this, EnemyControl.TYPE_YOUNG, tile);
         enemySpatial.addControl(ec);
@@ -494,7 +495,7 @@ public class Game extends SimpleCollisionGame {
     public void loadMutated(Tile tile) {
         Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/zombie/zombie.j3o");
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
-        createEnemy(enemySpatial, Vector3f.UNIT_Y);
+        createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
         //Here we load specific type of enemies.
         EnemyControl ec = new EnemyControl(this, EnemyControl.TYPE_MUTATED, tile);
@@ -535,6 +536,36 @@ public class Game extends SimpleCollisionGame {
             fireGameCompletedListener();
         }
     }
+    
+    public Spatial getModel(String powerType) {
+        Spatial spatial = null;
+        if (powerType.equals(Player.POWER_POIZON)) {
+            spatial = baseApplication.getModelManager().getModel("Models/powers/poison.j3o");
+
+        } else if (powerType.equals(Player.POWER_FEMALE)) {
+            spatial = baseApplication.getModelManager().getModel("Models/powers/plant1/plant1.j3o");
+
+        } else if (powerType.equals(Player.POWER_MALE)) {
+            spatial = baseApplication.getModelManager().getModel("Models/powers/plant2/plant2.j3o");
+
+        } else if (powerType.equals(Player.POWER_STOP)) {
+            spatial = baseApplication.getModelManager().getModel("Models/powers/stop.j3o");
+
+        } else if (powerType.equals(Player.POWER_BOMB)) {
+            spatial = baseApplication.getModelManager().getModel("Models/powers/barrel.j3o");
+
+        } else if (powerType.equals(Player.POWER_CURSE)) {
+            spatial = baseApplication.getModelManager().getModel("Models/powers/lantern/lantern.j3o");
+            
+        } else if (powerType.equals(Player.POWER_GAS)) {
+            spatial = baseApplication.getModelManager().getModel("Models/powers/acid.j3o");
+
+        } else if (powerType.equals(Player.POWER_MUTATION)) {
+            spatial = baseApplication.getModelManager().getModel("Models/enemies/zombie/zombie.j3o");
+            
+        }
+        return spatial;
+    }
 
     /**
      * Load a power to a tile position
@@ -544,28 +575,28 @@ public class Game extends SimpleCollisionGame {
      */
     public PowerControl loadPower(String powerType, Tile tile) {
         Spatial spatial = null;
-
+        
         if (powerType.equals(Player.POWER_POIZON)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/poison.j3o");
 
         } else if (powerType.equals(Player.POWER_FEMALE)) {
-            spatial = baseApplication.getModelManager().getModel("Models/powers/female.j3o");
+            spatial = baseApplication.getModelManager().getModel("Models/powers/plant1/plant1.j3o");
 
         } else if (powerType.equals(Player.POWER_MALE)) {
-            spatial = baseApplication.getModelManager().getModel("Models/powers/male.j3o");
+            spatial = baseApplication.getModelManager().getModel("Models/powers/plant2/plant2.j3o");
 
         } else if (powerType.equals(Player.POWER_STOP)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/stop.j3o");
 
         } else if (powerType.equals(Player.POWER_BOMB)) {
-            spatial = baseApplication.getModelManager().getModel("Models/powers/bomb.j3o");
+            spatial = baseApplication.getModelManager().getModel("Models/powers/barrel.j3o");
 
-        } else if (powerType.equals(Player.POWER_STERILIZATION)) {
+        } else if (powerType.equals(Player.POWER_CURSE)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/sterilize.j3o");
             
         } else if (powerType.equals(Player.POWER_GAS)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/gas.j3o");
-
+            
         } else if (powerType.equals(Player.POWER_MUTATION)) {
             loadMutated(tile);
             return null;
@@ -575,6 +606,7 @@ public class Game extends SimpleCollisionGame {
             throw new RuntimeException("Power, " + powerType + " not yet implemented.");
         }
 
+//        spatial.setQueueBucket(RenderQueue.Bucket.Opaque);
         spatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, 0, tile.getzPos() * TILE_SIZE));
         spatial.setUserData("power", powerType);
         createObstacle(spatial);
@@ -584,6 +616,10 @@ public class Game extends SimpleCollisionGame {
         
         return pc;
 
+    }
+    
+    public void addObstacle(Spatial spatial) {
+        createObstacle(spatial);
     }
 
     /**

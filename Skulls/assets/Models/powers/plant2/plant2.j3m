@@ -1,0 +1,9 @@
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
+     MaterialParameters {
+        ColorMap : Flip Models/powers/plant2/plant2.png
+        AlphaDiscardThreshold : 0.6
+     }
+    AdditionalRenderState {
+        FaceCull Off
+    }
+}

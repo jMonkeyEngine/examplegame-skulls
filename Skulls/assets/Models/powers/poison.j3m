@@ -1,9 +1,8 @@
 Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
      MaterialParameters {
-
         ColorMap : Flip Models/powers/poison.png
      }
     AdditionalRenderState {
-        FaceCull Off
+      Blend AlphaAdditive
     }
 }

@@ -37,8 +37,8 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
     protected int kills;
     protected boolean pregnant = false;
     protected boolean mating = false;
-    protected boolean sterile = false;
-    private Timer sterileTimer = new Timer(200);
+    protected boolean cursed = false;
+    private Timer cursedTimer = new Timer(200);
     private boolean move = false;
     private boolean alive = false;
     private boolean turning = false;
@@ -93,7 +93,7 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
             moveSpeed = 3f;
             turnSpeed = 1f;
             growthTime = 0f;
-            growTimer = null;
+            growTimer = null;            
 
         }
 
@@ -172,8 +172,8 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
 
                         } else {
                             mating = false;
-                            sterile = true; //Enemy needs to wait for 2 seconds before he can mate again
-                            sterileTimer.reset();
+                            cursed = true; //Enemy needs to wait for 2 seconds before he can mate again
+                            cursedTimer.reset();
                         }
                     }
 
@@ -198,11 +198,11 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
                 }
 
                 //Handle or check if the mate timer has started
-                if (sterile) {
-                    sterileTimer.update(tpf);
-                    if (sterileTimer.finished()) {
-                        sterile = false;
-                        sterileTimer.stop();
+                if (cursed) {
+                    cursedTimer.update(tpf);
+                    if (cursedTimer.finished()) {
+                        cursed = false;
+                        cursedTimer.stop();
                     }
                 }
 
@@ -285,22 +285,26 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
     }
     
     /**
-     * Sets this enemy to be sterile
+     * Sets this enemy to be Cursed
      * @param disabled 
      */
-    public void setSterile(boolean disabled) {        
+    public void setCursed(boolean disabled) {        
         
-        if (disabled && !sterile) {
-            sterileTimer.setMaxTime(600);
-            sterileTimer.reset();
-            sterile = true;
+        if (disabled && !cursed) {
+            cursedTimer.setMaxTime(600);
+            cursedTimer.reset();
+            cursed = true;
             
         } else {
-            sterile = false;
-            sterileTimer.stop();
-            sterileTimer.setMaxTime(200);
+            cursed = false;
+            cursedTimer.stop();
+            cursedTimer.setMaxTime(200);
         }
         
+    }
+
+    public boolean isCursed() {
+        return cursed;
     }
 
     /**
@@ -344,7 +348,7 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
      */
     public void startMating() {
         //Return out if this enemy is already mating
-        if (mating || sterile || pregnant) {
+        if (mating || cursed || pregnant) {
             return;
         }
 
@@ -404,6 +408,7 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
      * enemies. if kills are 5 then terminate
      */
     public void doMakeKill() {
+        game.getBaseApplication().getSoundManager().playSound("mutant");
         kills++;
 
         if (kills == 5) {

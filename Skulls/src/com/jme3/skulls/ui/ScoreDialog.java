@@ -45,15 +45,14 @@ public class ScoreDialog extends PopupDialog {
         this.add(powersPanel);
         
         createPowerButton("Resources/blank.png", null, 0);
-        createPowerButton("Interface/sparky-bomb.png", Player.POWER_BOMB, 3);
-        createPowerButton("Interface/poison-gas.png", Player.POWER_GAS, 15);
-        createPowerButton("Interface/nuclear.png", Player.POWER_STERILIZATION, 6);
-        createPowerButton("Interface/poison-bottle.png", Player.POWER_POIZON, 10);
-        createPowerButton("Interface/male.png", Player.POWER_MALE, 10);
-        createPowerButton("Interface/female.png", Player.POWER_FEMALE, 10);
-        createPowerButton("Interface/back-forth.png", Player.POWER_STOP, 3);
-        createPowerButton("Interface/mighty-boosh.png", Player.POWER_MUTATION, 25);
-        
+        createPowerButton("Interface/icons/barrel-bomb.png", Player.POWER_BOMB, 3);
+        createPowerButton("Interface/icons/acid-gas.png", Player.POWER_GAS, 15);
+        createPowerButton("Interface/icons/curse.png", Player.POWER_CURSE, 6);
+        createPowerButton("Interface/icons/poison.png", Player.POWER_POIZON, 10);
+        createPowerButton("Interface/icons/type-b.png", Player.POWER_MALE, 10);
+        createPowerButton("Interface/icons/type-a.png", Player.POWER_FEMALE, 10);
+        createPowerButton("Interface/icons/blockade.png", Player.POWER_STOP, 3);
+        createPowerButton("Interface/icons/mutant.png", Player.POWER_MUTATION, 25);        
         
         powersPanel.layout();
         
@@ -61,7 +60,7 @@ public class ScoreDialog extends PopupDialog {
         enemiesProgressBar.leftCenter(10, 0);
         enemiesProgressBar.setProgress(0.5f);
         
-        icon = new Image(this, "Interface/crowned-skull.png", 50, 50);
+        icon = new Image(this, "Interface/icons/skull-counter.png", 50, 50);
         icon.leftCenter(10, -230);
         
         enemiesLabel = new Label(this, "0", 24, 50,50);
