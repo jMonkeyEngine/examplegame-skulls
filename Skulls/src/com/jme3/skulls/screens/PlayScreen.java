@@ -26,7 +26,6 @@ import com.jme3.skulls.ui.ScoreDialog;
 import com.jme3.skulls.ui.StartGameDialog;
 import com.jme3.skulls.ui.WinDialog;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;

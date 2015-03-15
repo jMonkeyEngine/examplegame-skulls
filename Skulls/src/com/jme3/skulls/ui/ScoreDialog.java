@@ -68,7 +68,7 @@ public class ScoreDialog extends PopupDialog {
     }
     
     protected void createPowerButton(String image, String id, int sec) {
-        PowerButton button = new PowerButton(powersPanel, id, image, sec);
+        PowerButton button = new PowerButton(powersPanel, id, image, sec, 0);
         
     }
     

@@ -174,7 +174,7 @@ public class PowerControl extends AbstractControl {
                                     PowerControl pc = new PowerControl(game, type, tile);
                                     pc.setExplosion(true);
                                     pc.setFromTile(targetTile);
-                                    pc.setBombTickTime(50);
+                                    pc.setBombTickTime(20);
                                     sp.addControl(pc);
 
                                 }
