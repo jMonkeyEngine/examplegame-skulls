@@ -34,7 +34,7 @@ public class ScoreDialog extends PopupDialog {
         setTitleSize(26);
         title.centerTop(0, 2);
         
-        powersPanel = new VPanel(window, this, null, 80, window.getHeight());
+        powersPanel = new VPanel(window, this, null, 80, 560);
         powersPanel.leftCenter(0, 0);
         this.add(powersPanel);
         
@@ -42,7 +42,6 @@ public class ScoreDialog extends PopupDialog {
         powersPanel.rightCenter(0, 0);
         this.add(powersPanel);
         
-        createPowerButton("Resources/blank.png", null, 0);
         createPowerButton("Interface/icons/barrel-bomb.png", Player.POWER_BOMB, 3);
         createPowerButton("Interface/icons/acid-gas.png", Player.POWER_GAS, 15);
         createPowerButton("Interface/icons/curse.png", Player.POWER_CURSE, 6);

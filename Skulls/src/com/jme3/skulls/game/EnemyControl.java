@@ -168,8 +168,6 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
                             spawnChildCount = FastMath.nextRandomInt(1, 5);
                             pregnantTimer.reset();
 
-                            log("Becoming pregnant...");
-
                         } else {
                             mating = false;
                             cursed = true; //Enemy needs to wait for 2 seconds before he can mate again
@@ -275,8 +273,13 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
         nextTile = fromTile;
         fromTile = targetTile;
         targetTile = nextTile;
-
-        targetPosition = new Vector3f(targetTile.getxPos() * TILE_SIZE, spatial.getWorldTranslation().y, targetTile.getzPos() * TILE_SIZE);
+        
+        if (targetTile != null) {
+            targetPosition = new Vector3f(targetTile.getxPos() * TILE_SIZE, spatial.getWorldTranslation().y, targetTile.getzPos() * TILE_SIZE);
+        } else {
+            turn();
+            
+        }        
     
     }
 

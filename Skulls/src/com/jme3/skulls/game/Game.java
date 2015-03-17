@@ -10,10 +10,10 @@ import com.bruynhuis.galago.games.simplecollision.SimpleCollisionGame;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -44,31 +44,22 @@ public class Game extends SimpleCollisionGame {
     private Properties levelProperties;
     private String propertiesFile;
     private File file;
+    
     public static final String BLANK = "blank";
-    public static final String WALL_LIGHT1 = "wall_light1";
-    public static final String WALL_LIGHT2 = "wall_light2";
-    public static final String WALL_END1 = "wall_end1";
-    public static final String WALL_END2 = "wall_end2";
-    public static final String WALL_END3 = "wall_end3";
-    public static final String WALL_END4 = "wall_end4";
-    public static final String WALL_CORNER1 = "wall_corner1";
-    public static final String WALL_CORNER2 = "wall_corner2";
-    public static final String WALL_CORNER3 = "wall_corner3";
-    public static final String WALL_CORNER4 = "wall_corner4";
-    public static final String WALL_TWOWAY1 = "wall_twoway1";
-    public static final String WALL_TWOWAY2 = "wall_twoway2";
-    public static final String WALL_THREEWAY1 = "wall_threeway1";
-    public static final String WALL_THREEWAY2 = "wall_threeway2";
-    public static final String WALL_THREEWAY3 = "wall_threeway3";
-    public static final String WALL_THREEWAY4 = "wall_threeway4";
-    public static final String WALL_FOURWAY = "wall_fourway";
+    public static final String WALL_LIGHT = "walllight";
+    public static final String WALL_END = "wallone";
+    public static final String WALL_CORNER = "wallcorner";
+    public static final String WALL_TWOWAY = "walltwo";
+    public static final String WALL_THREEWAY = "wallthree";
+    public static final String WALL_FOURWAY = "wallfour";
     public static final String FLOOR = "floor";
     public static final String ENEMY = "enemy";
+        
     public static float TILE_SIZE = 2;
     public static int MAP_SIZE = 24;
     private Tile map[][] = new Tile[MAP_SIZE][MAP_SIZE];
     private boolean edit = false;
-    private float enemyHeight = 0.2f;
+    private float enemyHeight = 0.25f;
 
     /*
      * This property will keep track of all enemies in the level.
@@ -106,7 +97,7 @@ public class Game extends SimpleCollisionGame {
         for (int i = 0; i < map.length; i++) {
             Tile[] row = map[i];
             for (int j = 0; j < row.length; j++) {
-                map[i][j] = new Tile(BLANK, i, j, null);
+                map[i][j] = new Tile(BLANK, i, j, 0, null);
 
             }
         }
@@ -117,7 +108,7 @@ public class Game extends SimpleCollisionGame {
 
         //Special FX
         //load the filter
-        if (baseApplication.getGameSaves().getGameData().isFxOn()) {
+        if (!baseApplication.isMobileApp()) {
 //            loadFilter();
         }
 
@@ -126,7 +117,6 @@ public class Game extends SimpleCollisionGame {
             Spatial surface = createSurface();
             surface.move(-TILE_SIZE * 0.5f, -0.02f, -TILE_SIZE * 0.5f);
             staticNode.attachChild(surface);
-            log("Surface created");
         }
 
         //Load the static level models into the scene
@@ -134,7 +124,7 @@ public class Game extends SimpleCollisionGame {
             Tile[] row = map[r];
             for (int c = 0; c < row.length; c++) {
                 Tile tile = row[c];
-                updateTile(r, c, tile.getName());
+                updateTile(r, c, tile.getAngle(), tile.getName());
             }
         }
 
@@ -175,16 +165,38 @@ public class Game extends SimpleCollisionGame {
      *
      * @return
      */
-    protected Spatial getEnemyTile() {
-        Node tile = new Node(ENEMY);
-        Quad quad = new Quad(2, 2);
-        Geometry geometry = new Geometry(ENEMY, quad);
-        Material material = baseApplication.getModelManager().getMaterial("Materials/tile-enemy.j3m");
+    protected Spatial createTileWithMaterial(String name, Material material) {
+        Node tile = new Node(name);
+        Quad quad = new Quad(TILE_SIZE, TILE_SIZE);
+        Geometry geometry = new Geometry(name, quad);
         geometry.setMaterial(material);
         geometry.rotate(FastMath.DEG_TO_RAD * -90, 0, 0);
         tile.attachChild(geometry);
         geometry.center();
         return tile;
+    }
+    
+    /**
+     * Search the tile pack to find a specific model.
+     * @param tileName
+     * @return 
+     */
+    public Spatial getTileModel(String tileName) {
+        Spatial spatial = null;
+        
+        if (tileName.equals(ENEMY)) {
+            spatial = createTileWithMaterial(ENEMY, baseApplication.getModelManager().getMaterial("Materials/tile-enemy.j3m"));
+            
+        } else if (tileName.equals(BLANK)) {
+            spatial = createTileWithMaterial(BLANK, baseApplication.getModelManager().getMaterial("Materials/tile-blank.j3m"));
+            
+        } else {
+            //find the spatial in the dungeon pack
+            spatial = dungeonPack.getChild(tileName).clone();
+            spatial.setMaterial(dungeonMaterial);
+            
+        }
+        return spatial;
     }
 
     /**
@@ -262,10 +274,10 @@ public class Game extends SimpleCollisionGame {
      * @param z
      * @param model
      */
-    public void updateTile(int x, int z, String model) {
+    public void updateTile(int x, int z, int angle, String model) {
         Tile tile = map[x][z];
         tile.setName(model);
-
+        tile.setAngle(angle);
 
         if (tile.getSpatial() != null) {
             tile.getSpatial().removeFromParent();
@@ -283,129 +295,60 @@ public class Game extends SimpleCollisionGame {
 //            if (edit) {
 //                createStatic(spatial);
 //            }
-        } else if (WALL_END1.equals(model)) {
-            spatial = dungeonPack.getChild("onewall").clone();
+        } else if (WALL_END.equals(model)) {
+            spatial = dungeonPack.getChild("wallone").clone();
             spatial.setLocalTranslation(xPos, 0, zPos);
+            spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
             spatial.setMaterial(dungeonMaterial);
             createStatic(spatial);
 
-        } else if (WALL_END2.equals(model)) {
-            spatial = dungeonPack.getChild("onewall").clone();
+        } else if (WALL_CORNER.equals(model)) {
+            spatial = dungeonPack.getChild("wallcorner").clone();
             spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 90f, 0);
+            spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
             spatial.setMaterial(dungeonMaterial);
             createStatic(spatial);
 
-        } else if (WALL_END3.equals(model)) {
-            spatial = dungeonPack.getChild("onewall").clone();
+        } else if (WALL_TWOWAY.equals(model)) {
+            spatial = dungeonPack.getChild("walltwo").clone();
             spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 180f, 0);
+            spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
             spatial.setMaterial(dungeonMaterial);
             createStatic(spatial);
 
-        } else if (WALL_END4.equals(model)) {
-            spatial = dungeonPack.getChild("onewall").clone();
+        } else if (WALL_LIGHT.equals(model)) {
+            spatial = dungeonPack.getChild("walllight").clone();
             spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 270f, 0);
+            spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
             spatial.setMaterial(dungeonMaterial);
             createStatic(spatial);
 
-        } else if (WALL_CORNER1.equals(model)) {
-            spatial = dungeonPack.getChild("cornerwall").clone();
+        } else if (WALL_THREEWAY.equals(model)) {
+            spatial = dungeonPack.getChild("wallthree").clone();
             spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_CORNER2.equals(model)) {
-            spatial = dungeonPack.getChild("cornerwall").clone();
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 90f, 0);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_CORNER3.equals(model)) {
-            spatial = dungeonPack.getChild("cornerwall").clone();
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 180f, 0);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_CORNER4.equals(model)) {
-            spatial = dungeonPack.getChild("cornerwall").clone();
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 270f, 0);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_TWOWAY1.equals(model)) {
-            spatial = dungeonPack.getChild("twowall").clone();
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_TWOWAY2.equals(model)) {
-            spatial = dungeonPack.getChild("twowall").clone();
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 90f, 0);
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_LIGHT1.equals(model)) {
-            spatial = dungeonPack.getChild("lightwall").clone();
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_LIGHT2.equals(model)) {
-            spatial = dungeonPack.getChild("lightwall").clone();
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 90f, 0);
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_THREEWAY1.equals(model)) {
-            spatial = dungeonPack.getChild("threewall").clone();
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_THREEWAY2.equals(model)) {
-            spatial = dungeonPack.getChild("threewall").clone();
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 90f, 0);
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_THREEWAY3.equals(model)) {
-            spatial = dungeonPack.getChild("threewall").clone();
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 180f, 0);
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
-
-        } else if (WALL_THREEWAY4.equals(model)) {
-            spatial = dungeonPack.getChild("threewall").clone();
-            spatial.rotate(0, FastMath.DEG_TO_RAD * 270f, 0);
-            spatial.setLocalTranslation(xPos, 0, zPos);
+            spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
             spatial.setMaterial(dungeonMaterial);
             createStatic(spatial);
 
         } else if (WALL_FOURWAY.equals(model)) {
-            spatial = dungeonPack.getChild("fourwall").clone();
+            spatial = dungeonPack.getChild("wallfour").clone();
             spatial.setLocalTranslation(xPos, 0, zPos);
+            spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
             spatial.setMaterial(dungeonMaterial);
             createStatic(spatial);
 
         } else if (FLOOR.equals(model)) {
             spatial = dungeonPack.getChild("floor").clone();
             spatial.setLocalTranslation(xPos, 0, zPos);
+            spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
             spatial.setMaterial(dungeonMaterial);
             createStatic(spatial);
 
         } else if (ENEMY.equals(model)) {
             if (edit) {
-                spatial = getEnemyTile();
+                spatial = createTileWithMaterial(ENEMY, baseApplication.getModelManager().getMaterial("Materials/tile-enemy.j3m"));
                 spatial.setLocalTranslation(xPos, 0, zPos);
+                spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
                 createStatic(spatial);
 
             } else {
@@ -537,7 +480,7 @@ public class Game extends SimpleCollisionGame {
         }
     }
     
-    public Spatial getModel(String powerType) {
+    public Spatial getPowerModel(String powerType) {
         Spatial spatial = null;
         if (powerType.equals(Player.POWER_POIZON)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/poison.j3o");
@@ -607,7 +550,7 @@ public class Game extends SimpleCollisionGame {
         }
 
 //        spatial.setQueueBucket(RenderQueue.Bucket.Opaque);
-        spatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, 0, tile.getzPos() * TILE_SIZE));
+        spatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, -0.02f, tile.getzPos() * TILE_SIZE));
         spatial.setUserData("power", powerType);
         createObstacle(spatial);
 
@@ -728,28 +671,29 @@ public class Game extends SimpleCollisionGame {
             Tile[] row = map[i];
             for (int j = 0; j < row.length; j++) {
 
-                if (i == 0 && j == 0) {
-                    map[i][j] = new Tile(WALL_CORNER3, i, j, null);
+//                if (i == 0 && j == 0) {
+//                    map[i][j] = new Tile(WALL_CORNER3, i, j, null);
+//
+//                } else if (i == map.length - 1 && j == 0) {
+//                    map[i][j] = new Tile(WALL_CORNER2, i, j, null);
+//
+//                } else if (i == map.length - 1 && j == map.length - 1) {
+//                    map[i][j] = new Tile(WALL_CORNER1, i, j, null);
+//
+//                } else if (i == 0 && j == map.length - 1) {
+//                    map[i][j] = new Tile(WALL_CORNER4, i, j, null);
+//
+//                } else if (i == 0 || i == map.length - 1 && j > 0) {
+//                    map[i][j] = new Tile(WALL_TWOWAY2, i, j, null);
+//
+//                } else if (j == 0 || j == map.length - 1 && i > 0) {
+//                    map[i][j] = new Tile(WALL_TWOWAY1, i, j, null);
+//
+//                } else {
+//                    map[i][j] = new Tile(FLOOR, i, j, null);
+//                }
 
-                } else if (i == map.length - 1 && j == 0) {
-                    map[i][j] = new Tile(WALL_CORNER2, i, j, null);
-
-                } else if (i == map.length - 1 && j == map.length - 1) {
-                    map[i][j] = new Tile(WALL_CORNER1, i, j, null);
-
-                } else if (i == 0 && j == map.length - 1) {
-                    map[i][j] = new Tile(WALL_CORNER4, i, j, null);
-
-                } else if (i == 0 || i == map.length - 1 && j > 0) {
-                    map[i][j] = new Tile(WALL_TWOWAY2, i, j, null);
-
-                } else if (j == 0 || j == map.length - 1 && i > 0) {
-                    map[i][j] = new Tile(WALL_TWOWAY1, i, j, null);
-
-                } else {
-                    map[i][j] = new Tile(FLOOR, i, j, null);
-                }
-
+                map[i][j] = new Tile(FLOOR, i, j, 0, null);
 
             }
         }
@@ -927,9 +871,11 @@ public class Game extends SimpleCollisionGame {
                 String[] positionStr = key.split(",");
                 int x = positionStr.length > 0 ? Integer.parseInt(positionStr[0].trim()) : 0;
                 int z = positionStr.length > 1 ? Integer.parseInt(positionStr[1].trim()) : 0;
+                int angle = positionStr.length > 2 ? Integer.parseInt(positionStr[2].trim()) : 0;
                 String value = levelProperties.getProperty(key);
                 Tile tile = map[x][z];
                 tile.setName(value);
+                tile.setAngle(angle);
             }
         }
     }
@@ -946,7 +892,7 @@ public class Game extends SimpleCollisionGame {
                 Tile[] row = map[r];
                 for (int c = 0; c < row.length; c++) {
                     Tile tile = row[c];
-                    levelProperties.put(r + "," + c, tile.getName());
+                    levelProperties.put(r + "," + c + "," + tile.getAngle(), tile.getName());
                 }
             }
         }

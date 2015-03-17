@@ -14,6 +14,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
+import com.jme3.skulls.MainApplication;
 import java.util.ArrayList;
 
 /**
@@ -27,7 +28,7 @@ public class PowerControl extends AbstractControl {
 
     protected Game game;
     protected String type;
-    protected boolean active = true;
+    protected boolean active = false;
     protected Timer inactiveTimer = new Timer(50);
     protected int health = 4;
     protected Timer bombTickTimer = new Timer(300);
@@ -55,7 +56,8 @@ public class PowerControl extends AbstractControl {
     private void init() {
 
         if (type.equals(Player.POWER_POIZON)) {
-            game.getBaseApplication().getSoundManager().playMusic("bubble");
+            active = true;
+            game.getBaseApplication().getSoundManager().playSound("bubble");
         }
 
         if (type.equals(Player.POWER_BOMB)) {
@@ -87,6 +89,22 @@ public class PowerControl extends AbstractControl {
             }
 
         }
+        
+        if (type.equals(Player.POWER_FEMALE)) {
+            active = true;
+        }
+        
+        if (type.equals(Player.POWER_MALE)) {
+            active = true;
+        }
+        
+        if (type.equals(Player.POWER_MUTATION)) {
+            active = true;
+        }
+        
+        if (type.equals(Player.POWER_STOP)) {
+            active = true;
+        }
 
     }
 
@@ -100,10 +118,6 @@ public class PowerControl extends AbstractControl {
 
     public void setBombTickTime(float time) {
         this.bombTickTimer.setMaxTime(time);
-    }
-
-    public void setBombActiveTime(float time) {
-        this.bombActiveTimer.setMaxTime(time);
     }
 
     public void setFromTile(Tile fromTile) {
@@ -135,27 +149,27 @@ public class PowerControl extends AbstractControl {
                 //When bomb tick time is complete we have to activate it
                 bombTickTimer.update(tpf);
                 if (bombTickTimer.finished()) {
+                    
+                    //Only if it is the first explosion
                     if (!explosion) {
+                        spatial.setLocalScale(0);
                         bombCountDownTimer.stop();
                         game.getBaseApplication().getSoundManager().playSound("bomb");
+                        ((MainApplication)game.getBaseApplication()).getPlayScreen().shakeCamera(0.08f, 100);
                     }
+                    
                     active = true;
-                    game.getBaseApplication().getEffectManager().doEffect("bomb", spatial.getWorldTranslation().add(0, 1, 0), bombActiveTimer.getMaxTime());
+                    game.getBaseApplication().getEffectManager().doEffect("bomb", spatial.getWorldTranslation().add(0, 1, 0), 80);
                     bombTickTimer.stop();
                     bombActiveTimer.start();
-                    spatial.setLocalScale(0);
+                    
 
                     //get all tiles forward or sideways. it will not return the from tile
                     ArrayList<Tile> tiles = game.getAllAdjacentTile(targetTile, fromTile);
                     if (tiles != null && tiles.size() >= 1) {
 
-                        float activeTime = bombActiveTimer.getMaxTime() - 50;
-                        if (activeTime < 50) {
-                            activeTime = 50;
-                        }
-
                         //Reproduce new spread
-                        if ((fromTile == null) || (fromTile != null && tiles.size() == 1)) {
+                        if ((fromTile == null) || (fromTile != null)) {
                             for (int i = 0; i < tiles.size(); i++) {
                                 Tile tile = tiles.get(i);
                                 boolean addTile = true;
@@ -174,16 +188,10 @@ public class PowerControl extends AbstractControl {
                                     PowerControl pc = new PowerControl(game, type, tile);
                                     pc.setExplosion(true);
                                     pc.setFromTile(targetTile);
-                                    pc.setBombTickTime(20);
+                                    pc.setBombTickTime(8);
                                     sp.addControl(pc);
 
                                 }
-
-
-//                                PowerControl pc = game.loadPower(type, tile);
-//                                pc.setFromTile(targetTile);
-//                                pc.setBombTickTime(10);
-////                                pc.setBombActiveTime(activeTime);
 
                             }
                         }
@@ -312,8 +320,7 @@ public class PowerControl extends AbstractControl {
 
         if (type.equals(Player.POWER_POIZON)) {
             enemyControl.doDie();
-            game.addScore(10);
-            game.getBaseApplication().getSoundManager().stopMusic("bubble");
+            game.addScore(10);            
             doDispose();
 
         } else if (type.equals(Player.POWER_FEMALE)) {

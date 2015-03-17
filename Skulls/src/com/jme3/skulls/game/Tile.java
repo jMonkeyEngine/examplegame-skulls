@@ -16,12 +16,14 @@ public class Tile implements Serializable {
     private String name;
     private int xPos;
     private int zPos;
+    private int angle;
     private transient Spatial spatial;
 
-    public Tile(String name, int xPos, int zPos, Spatial spatial) {
+    public Tile(String name, int xPos, int zPos, int angle, Spatial spatial) {
         this.name = name;
         this.xPos = xPos;
         this.zPos = zPos;
+        this.angle = angle;                
         this.spatial = spatial;
     }
 
@@ -57,9 +59,18 @@ public class Tile implements Serializable {
         this.spatial = spatial;
     }
 
+    public int getAngle() {
+        return angle;
+    }
+
+    public void setAngle(int angle) {
+        this.angle = angle;
+    }
+
     @Override
     public String toString() {
-        return "Tile{" + "name=" + name + ", xPos=" + xPos + ", zPos=" + zPos + '}';
+        return "Tile{" + "name=" + name + ", xPos=" + xPos + ", zPos=" + zPos + ", angle=" + angle + '}';
     }
+
     
 }

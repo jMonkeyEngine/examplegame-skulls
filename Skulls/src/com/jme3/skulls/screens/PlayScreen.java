@@ -6,6 +6,8 @@ package com.jme3.skulls.screens;
 
 import com.bruynhuis.galago.app.BaseApplication;
 import com.bruynhuis.galago.control.FlickerControl;
+import com.bruynhuis.galago.control.camera.CameraShakeListener;
+import com.bruynhuis.galago.control.camera.CameraShaker;
 import com.bruynhuis.galago.games.simplecollision.SimpleCollisionGameListener;
 import com.bruynhuis.galago.listener.PickEvent;
 import com.bruynhuis.galago.listener.PickListener;
@@ -61,6 +63,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     private Timer secondsTimer = new Timer(100);
     private Geometry marker;
     private Spatial powerSpatial;
+    private CameraShaker cameraShaker;
 
     @Override
     protected void init() {
@@ -79,7 +82,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
                         powerSpatial.removeFromParent();
                     }
                     
-                    powerSpatial = game.getModel(uid);
+                    powerSpatial = game.getPowerModel(uid);
                     powerSpatial.addControl(new FlickerControl(0.6f));
                     rootNode.attachChild(powerSpatial);
                     
@@ -248,13 +251,14 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
         marker = new Geometry("MARKER", wb);
         marker.setMaterial(baseApplication.getAssetManager().loadMaterial("Common/Materials/RedColor.j3m"));
         rootNode.attachChild(marker);
+        
+        cameraShaker = new CameraShaker(camera, rootNode);
 
     }
 
     protected void loadCameraSettings() {
-        float anglePerX = 0.5f;
         float angleY = FastMath.DEG_TO_RAD * 0f;
-        float anglePerZ = 0.7f;
+        float anglePerZ = 0.4f;
         Vector3f centerPoint = new Vector3f((Game.MAP_SIZE * Game.TILE_SIZE) * 0.5f, 0, (Game.MAP_SIZE * Game.TILE_SIZE) * 0.5f);
 
         cameraJointNode = new Node("camerajoint");
@@ -456,7 +460,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
 
     public void doCollisionEnemyWithObstacle(Spatial collided, Spatial collider) {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        log(collided.getName() + " collided with " + collider.getName());
+//        log(collided.getName() + " collided with " + collider.getName());
 
         //Here we must notify the enemy to change direction
         if (collided.getControl(EnemyControl.class) != null) {
@@ -492,7 +496,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
 
                 //Only if a valid tile was selected
                 if (selectedTile != null) {
-                    game.getBaseApplication().getSoundManager().playSound("block");
+                    game.getBaseApplication().getSoundManager().playSound("switch");
                     game.loadPower(player.getSelectedPower(), selectedTile);
                     scoreDialog.usePower(player.getSelectedPower());
                     player.setSelectedPower(null);
@@ -512,12 +516,6 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
          * We override the update loop so that we can move the camera position.
          */
         if (isActive() && game.isStarted() && !game.isPaused()) {
-
-//            //When the mouse cursor is over the tools dialog section show it
-//            if (inputManager.getCursorPosition().x > window.getWidth() - (100 * window.getScaleFactorWidth())) {
-//                scoreDialog.show();
-//                
-//            }
 
             scoreDialog.setEnemyCount(game.getEnemies().size());
 
@@ -588,5 +586,17 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     @Override
     protected void pause() {
         doPauseGame();
+    }
+    
+    public void shakeCamera(float amount, float duration) {
+        cameraNode.setEnabled(false);
+        cameraShaker.setCameraShakeListener(new CameraShakeListener() {
+
+            public void done() {
+                cameraNode.setEnabled(true);
+            }
+        });
+        
+        cameraShaker.shake(amount, duration);
     }
 }

@@ -20,15 +20,15 @@ import com.jme3.math.ColorRGBA;
  * @author Nicolaas de Bruyn
  */
 public class MainApplication extends Base3DApplication {
-
-    /**
+    
+     /**
      * This is the default constructor and must be called from the main()
      * method.
      */
     public MainApplication() {
         //This constructor is used to initialize app specific things
         //Title, native width, native height, gameSaveDataFile, font if not default, splash if needed, enablephysics, enable size selection
-        super("Skulls", 1280, 720, "skulls.save", null, null, false);
+        super("Skulls", 1280, 720, "skulls.save", null, null, true);
     }
 
     public static void main(String[] args) {
@@ -48,7 +48,7 @@ public class MainApplication extends Base3DApplication {
     protected void postInitApp() {
         //This method is called after all screens and game data is loaded
         showScreen("menu");
-
+        
     }
 
     @Override
@@ -88,8 +88,8 @@ public class MainApplication extends Base3DApplication {
         soundManager.loadSoundFx("curse", "Sounds/SFX/Powers/Curse/necro-death.ogg");
         soundManager.setSoundVolume("curse", 1f);
         
-        soundManager.loadMusic("bubble", "Sounds/SFX/Powers/Poison/bubble.ogg");
-        soundManager.setMusicVolume("bubble", 0.5f);
+        soundManager.loadSoundFx("bubble", "Sounds/SFX/Powers/Poison/bubble3times.ogg");
+        soundManager.setSoundVolume("bubble", 0.5f);
         
         soundManager.loadSoundFx("mutant", "Sounds/SFX/Powers/Mutant/217282__jarredgibb__zombie4.ogg");
         soundManager.setSoundVolume("mutant", 0.6f);
@@ -165,4 +165,5 @@ public class MainApplication extends Base3DApplication {
     protected boolean isPhysicsEnabled() {
         return false;
     }
+
 }

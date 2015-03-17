@@ -1,7 +1,8 @@
-Material My Material : Common/MatDefs/Light/Lighting.j3md {
+Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
      MaterialParameters {
-        DiffuseMap : Flip Textures/tile-floor.png
+        ColorMap : Flip Repeat Textures/tile-floor.png
      }
     AdditionalRenderState {
+      FaceCull Off
     }
 }
