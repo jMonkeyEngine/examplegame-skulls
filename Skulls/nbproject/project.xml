@@ -15,9 +15,6 @@
             <extension file="linuxlauncher-impl.xml" id="linuxlauncher">
                 <dependency dependsOn="-linux-launcher" target="jar"/>
             </extension>
-            <extension file="mobile-impl.xml" id="mobile">
-                <dependency dependsOn="-mobile-deployment" target="jar"/>
-            </extension>
         </buildExtensions>
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>Skulls</name>
