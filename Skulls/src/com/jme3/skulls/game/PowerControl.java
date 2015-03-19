@@ -61,12 +61,14 @@ public class PowerControl extends AbstractControl {
         }
 
         if (type.equals(Player.POWER_BOMB)) {
-            bombTickTimer.start();
-            active = false;
+            bombTickTimer.start();            
             spatial.setLocalScale(1f);
 
             if (!explosion) {
                 bombCountDownTimer.start();
+                active = false;
+            } else {
+                active = true;
             }
 
         }
@@ -79,6 +81,7 @@ public class PowerControl extends AbstractControl {
         }
 
         if (type.equals(Player.POWER_GAS)) {
+            game.getBaseApplication().getSoundManager().playSound("acid");
             gasTimer.start();
             gasExpandTimer.start();
             active = true;
@@ -155,7 +158,7 @@ public class PowerControl extends AbstractControl {
                         spatial.setLocalScale(0);
                         bombCountDownTimer.stop();
                         game.getBaseApplication().getSoundManager().playSound("bomb");
-                        ((MainApplication)game.getBaseApplication()).getPlayScreen().shakeCamera(0.08f, 100);
+                        ((MainApplication)game.getBaseApplication()).getPlayScreen().shakeCamera(0.08f, 60);
                     }
                     
                     active = true;

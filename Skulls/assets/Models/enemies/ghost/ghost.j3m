@@ -1,8 +1,0 @@
-Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
-     MaterialParameters {
-        ColorMap : Flip Models/enemies/ghost/ghost_col_mobile.png
-        AlphaDiscardThreshold : 0.59999996
-     }
-    AdditionalRenderState {
-    }
-}

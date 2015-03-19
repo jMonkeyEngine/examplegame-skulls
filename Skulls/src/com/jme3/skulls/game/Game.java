@@ -44,7 +44,6 @@ public class Game extends SimpleCollisionGame {
     private Properties levelProperties;
     private String propertiesFile;
     private File file;
-    
     public static final String BLANK = "blank";
     public static final String WALL_LIGHT = "walllight";
     public static final String WALL_END = "wallone";
@@ -54,7 +53,6 @@ public class Game extends SimpleCollisionGame {
     public static final String WALL_FOURWAY = "wallfour";
     public static final String FLOOR = "floor";
     public static final String ENEMY = "enemy";
-        
     public static float TILE_SIZE = 2;
     public static int MAP_SIZE = 24;
     private Tile map[][] = new Tile[MAP_SIZE][MAP_SIZE];
@@ -73,6 +71,7 @@ public class Game extends SimpleCollisionGame {
     private int initialFemaleCount = 2;
     private Node dungeonPack;
     private Material dungeonMaterial;
+    private Material enemiesMaterial;
     private FilterPostProcessor fpp;
     private int score = 600;
 
@@ -81,8 +80,9 @@ public class Game extends SimpleCollisionGame {
 
         initMap();
 
-        dungeonPack = (Node) baseApplication.getModelManager().getModel("Models/static/dungeon.j3o");
-        dungeonMaterial = baseApplication.getModelManager().getMaterial("Models/static/dungeon.j3m");
+        dungeonPack = (Node) baseApplication.getModelManager().getModel("Models/static/dungeon_pixel.j3o");
+        dungeonMaterial = baseApplication.getModelManager().getMaterial("Models/static/dungeon_pixel.j3m");
+        enemiesMaterial = baseApplication.getModelManager().getMaterial("Models/enemies/enemies.j3m");
     }
 
     private void loadFilter() {
@@ -113,11 +113,11 @@ public class Game extends SimpleCollisionGame {
         }
 
         //Load the surface for optimization
-        if (edit) {
-            Spatial surface = createSurface();
-            surface.move(-TILE_SIZE * 0.5f, -0.02f, -TILE_SIZE * 0.5f);
-            staticNode.attachChild(surface);
-        }
+//        if (edit) {
+        Spatial surface = createSurface();
+        surface.move(-TILE_SIZE * 0.5f, -0.02f, -TILE_SIZE * 0.5f);
+        staticNode.attachChild(surface);
+//        }
 
         //Load the static level models into the scene
         for (int r = 0; r < map.length; r++) {
@@ -142,7 +142,7 @@ public class Game extends SimpleCollisionGame {
         Quad quad = new Quad(2, 2);
 //        Box quad = new Box(1, 1, 1);
         Geometry geometry = new Geometry(BLANK, quad);
-        Material material = baseApplication.getModelManager().getMaterial("Materials/tile-blank.j3m");
+        Material material = baseApplication.getModelManager().getMaterial("Materials/tile-floor.j3m");
         geometry.setMaterial(material);
         geometry.rotate(FastMath.DEG_TO_RAD * -90, 0, 0);
         tile.attachChild(geometry);
@@ -154,7 +154,7 @@ public class Game extends SimpleCollisionGame {
         Quad quad = new Quad(MAP_SIZE * TILE_SIZE, MAP_SIZE * TILE_SIZE);
         Geometry geometry = new Geometry(BLANK, quad);
         quad.scaleTextureCoordinates(new Vector2f(MAP_SIZE, MAP_SIZE));
-        Material material = baseApplication.getModelManager().getMaterial("Materials/tile-blank.j3m");
+        Material material = baseApplication.getModelManager().getMaterial("Materials/tile-floor.j3m");
         geometry.setMaterial(material);
         geometry.rotate(FastMath.DEG_TO_RAD * 90, 0, 0);
         return geometry;
@@ -175,26 +175,27 @@ public class Game extends SimpleCollisionGame {
         geometry.center();
         return tile;
     }
-    
+
     /**
      * Search the tile pack to find a specific model.
+     *
      * @param tileName
-     * @return 
+     * @return
      */
     public Spatial getTileModel(String tileName) {
         Spatial spatial = null;
-        
+
         if (tileName.equals(ENEMY)) {
             spatial = createTileWithMaterial(ENEMY, baseApplication.getModelManager().getMaterial("Materials/tile-enemy.j3m"));
-            
+
         } else if (tileName.equals(BLANK)) {
-            spatial = createTileWithMaterial(BLANK, baseApplication.getModelManager().getMaterial("Materials/tile-blank.j3m"));
-            
+            spatial = createTileWithMaterial(BLANK, baseApplication.getModelManager().getMaterial("Materials/tile-floor.j3m"));
+
         } else {
             //find the spatial in the dungeon pack
             spatial = dungeonPack.getChild(tileName).clone();
             spatial.setMaterial(dungeonMaterial);
-            
+
         }
         return spatial;
     }
@@ -338,11 +339,14 @@ public class Game extends SimpleCollisionGame {
             createStatic(spatial);
 
         } else if (FLOOR.equals(model)) {
-            spatial = dungeonPack.getChild("floor").clone();
-            spatial.setLocalTranslation(xPos, 0, zPos);
-            spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
-            spatial.setMaterial(dungeonMaterial);
-            createStatic(spatial);
+            if (edit) {
+                spatial = dungeonPack.getChild("floor").clone();
+                spatial.setLocalTranslation(xPos, 0, zPos);
+                spatial.setLocalRotation(new Quaternion().fromAngleAxis(tile.getAngle() * FastMath.DEG_TO_RAD, new Vector3f(0, 1, 0)));
+                spatial.setMaterial(dungeonMaterial);
+                createStatic(spatial);
+            }
+
 
         } else if (ENEMY.equals(model)) {
             if (edit) {
@@ -352,10 +356,10 @@ public class Game extends SimpleCollisionGame {
                 createStatic(spatial);
 
             } else {
-                spatial = dungeonPack.getChild("floor").clone();
-                spatial.setLocalTranslation(xPos, 0, zPos);
-                spatial.setMaterial(dungeonMaterial);
-                createStatic(spatial);
+//                spatial = dungeonPack.getChild("floor").clone();
+//                spatial.setLocalTranslation(xPos, 0, zPos);
+//                spatial.setMaterial(dungeonMaterial);
+//                createStatic(spatial);
                 loadEnemy(tile);
                 tile.setName(FLOOR);
 
@@ -398,7 +402,8 @@ public class Game extends SimpleCollisionGame {
     }
 
     public void loadMale(Tile tile) {
-        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/ghost/ghost.j3o");
+        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/ghost.j3o");
+        enemySpatial.setMaterial(enemiesMaterial);
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
         createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
@@ -409,7 +414,8 @@ public class Game extends SimpleCollisionGame {
     }
 
     public void loadFemale(Tile tile) {
-        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/mummy/mummy.j3o");
+        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/mummy.j3o");
+        enemySpatial.setMaterial(enemiesMaterial);        
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
         createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
@@ -420,7 +426,8 @@ public class Game extends SimpleCollisionGame {
     }
 
     public void loadYoung(Tile tile) {
-        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/skeleton/skeleton.j3o");
+        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/skeleton.j3o");
+        enemySpatial.setMaterial(enemiesMaterial);
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
         createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
@@ -436,7 +443,8 @@ public class Game extends SimpleCollisionGame {
      * @param tile
      */
     public void loadMutated(Tile tile) {
-        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/zombie/zombie.j3o");
+        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/zombie.j3o");
+        enemySpatial.setMaterial(enemiesMaterial);
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
         createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
@@ -454,6 +462,7 @@ public class Game extends SimpleCollisionGame {
     public void spawnYoung(Tile tile) {
         initialFemaleCount = 0;
         initialMaleCount = 0;
+        baseApplication.getSoundManager().playSound("spawn");
         loadEnemy(tile);
 
     }
@@ -479,7 +488,7 @@ public class Game extends SimpleCollisionGame {
             fireGameCompletedListener();
         }
     }
-    
+
     public Spatial getPowerModel(String powerType) {
         Spatial spatial = null;
         if (powerType.equals(Player.POWER_POIZON)) {
@@ -499,13 +508,14 @@ public class Game extends SimpleCollisionGame {
 
         } else if (powerType.equals(Player.POWER_CURSE)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/lantern/lantern.j3o");
-            
+
         } else if (powerType.equals(Player.POWER_GAS)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/acid.j3o");
 
         } else if (powerType.equals(Player.POWER_MUTATION)) {
-            spatial = baseApplication.getModelManager().getModel("Models/enemies/zombie/zombie.j3o");
-            
+            spatial = baseApplication.getModelManager().getModel("Models/enemies/zombie.j3o");
+            spatial.setMaterial(enemiesMaterial);
+
         }
         return spatial;
     }
@@ -514,11 +524,11 @@ public class Game extends SimpleCollisionGame {
      * Load a power to a tile position
      *
      * @param powerType
-     * @param tile 
+     * @param tile
      */
     public PowerControl loadPower(String powerType, Tile tile) {
         Spatial spatial = null;
-        
+
         if (powerType.equals(Player.POWER_POIZON)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/poison.j3o");
 
@@ -536,10 +546,10 @@ public class Game extends SimpleCollisionGame {
 
         } else if (powerType.equals(Player.POWER_CURSE)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/sterilize.j3o");
-            
+
         } else if (powerType.equals(Player.POWER_GAS)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/gas.j3o");
-            
+
         } else if (powerType.equals(Player.POWER_MUTATION)) {
             loadMutated(tile);
             return null;
@@ -556,11 +566,11 @@ public class Game extends SimpleCollisionGame {
 
         PowerControl pc = new PowerControl(this, powerType, tile);
         spatial.addControl(pc);
-        
+
         return pc;
 
     }
-    
+
     public void addObstacle(Spatial spatial) {
         createObstacle(spatial);
     }
@@ -736,26 +746,24 @@ public class Game extends SimpleCollisionGame {
      *
      *
      */
-    
-    
     public void edit(String levelfile) {
         setOptimize(false);
         edit = true;
         readEditFile(levelfile);
     }
-    
+
     public void test(String levelfile) {
         setOptimize(true);
         edit = false;
         readEditFile(levelfile);
     }
-    
+
     public void play(String levelfile) {
         setOptimize(true);
         edit = false;
         readAssetFile(levelfile);
     }
-    
+
     /**
      * This method must be called when reading a level file and not when editing
      * it.
@@ -802,7 +810,7 @@ public class Game extends SimpleCollisionGame {
      * Read the current level that is designed.
      */
     protected void readEditFile(String levelfile) {
-       
+
         this.propertiesFile = levelfile;
         File folder = JmeSystem.getStorageFolder();
 

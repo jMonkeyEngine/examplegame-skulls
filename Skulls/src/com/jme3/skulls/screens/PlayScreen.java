@@ -13,6 +13,7 @@ import com.bruynhuis.galago.listener.PickEvent;
 import com.bruynhuis.galago.listener.PickListener;
 import com.bruynhuis.galago.listener.TouchPickListener;
 import com.bruynhuis.galago.screen.AbstractScreen;
+import com.bruynhuis.galago.ui.Image;
 import com.bruynhuis.galago.ui.listener.TouchButtonAdapter;
 import com.bruynhuis.galago.util.Timer;
 import com.jme3.math.ColorRGBA;
@@ -55,6 +56,9 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     private Game game;
     private Player player;
     private float cameraHeight = 20f;
+    private float anglePerZ = 0.4f;
+    private float MAX_HEIGHT = 30;
+    private float MIN_HEIGHT = 15;
     private TouchPickListener touchPickListener;
     private float dragSpeed = 30f;
     private boolean test = false;
@@ -67,6 +71,10 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
 
     @Override
     protected void init() {
+        
+        Image background = new Image(hudPanel, "Interface/darkness.png");
+        background.center();
+        background.setDepthPosition(-10f);
 
         scoreDialog = new ScoreDialog(window);
         scoreDialog.center();
@@ -210,8 +218,6 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
 
     @Override
     protected void load() {
-        baseApplication.getViewPort().setBackgroundColor(ColorRGBA.Black);
-
         /*
          * The loadStart method is called very first when ever the user calls to go to this screen.
          * A black panel will by default be shown over the screen
@@ -257,8 +263,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     }
 
     protected void loadCameraSettings() {
-        float angleY = FastMath.DEG_TO_RAD * 0f;
-        float anglePerZ = 0.4f;
+        float angleY = FastMath.DEG_TO_RAD * 0f;        
         Vector3f centerPoint = new Vector3f((Game.MAP_SIZE * Game.TILE_SIZE) * 0.5f, 0, (Game.MAP_SIZE * Game.TILE_SIZE) * 0.5f);
 
         cameraJointNode = new Node("camerajoint");
@@ -390,6 +395,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     }
 
     public void doGameOver() {
+        scoreDialog.setEnemyCount(Game.MAX_ENEMIES);
         game.pause();
         gameOverDialog.show();
     }
@@ -495,8 +501,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
                 Tile selectedTile = game.getClosestFloorTile(pickEvent.getContactPoint().x, pickEvent.getContactPoint().z);
 
                 //Only if a valid tile was selected
-                if (selectedTile != null) {
-                    game.getBaseApplication().getSoundManager().playSound("switch");
+                if (selectedTile != null) {                    
                     game.loadPower(player.getSelectedPower(), selectedTile);
                     scoreDialog.usePower(player.getSelectedPower());
                     player.setSelectedPower(null);
@@ -529,20 +534,23 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     }
 
     public void drag(PickEvent pickEvent, float tpf) {
-        if (isActive() && game.isStarted() && !game.isPaused() && player.getSelectedPower() == null && pickEvent.isKeyDown()) {
+        if (isActive() && game.isStarted() && !game.isPaused() && pickEvent.isKeyDown()) {
 
             if (pickEvent.isRight()) {
 //                cameraJointNode.rotate(0, -pickEvent.getAnalogValue()*dragSpeed, 0);
                 cameraJointNode.move(cameraJointNode.getWorldRotation().getRotationColumn(0).mult(-pickEvent.getAnalogValue() * dragSpeed));
 
-            } else if (pickEvent.isUp()) {
+            }
+            if (pickEvent.isUp()) {
                 cameraJointNode.move(cameraJointNode.getWorldRotation().getRotationColumn(2).mult(pickEvent.getAnalogValue() * dragSpeed));
 
-            } else if (pickEvent.isLeft()) {
+            }
+            if (pickEvent.isLeft()) {
 //                cameraJointNode.rotate(0, pickEvent.getAnalogValue()*dragSpeed, 0);
                 cameraJointNode.move(cameraJointNode.getWorldRotation().getRotationColumn(0).mult(pickEvent.getAnalogValue() * dragSpeed));
 
-            } else if (pickEvent.isDown()) {
+            }
+            if (pickEvent.isDown()) {
                 cameraJointNode.move(cameraJointNode.getWorldRotation().getRotationColumn(2).mult(-pickEvent.getAnalogValue() * dragSpeed));
 
             }
@@ -580,6 +588,23 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
                     marker.setCullHint(Spatial.CullHint.Always);
                 }
             }
+        }
+        
+        //Do the camera zooming
+        if (isActive()) {
+            if (pickEvent.isZoomUp()) {
+                cameraHeight += 1f;                
+            } else if (pickEvent.isZoomDown()) {
+                cameraHeight -= 1f;                
+            }
+            
+            if (cameraHeight > MAX_HEIGHT) {
+                cameraHeight = MAX_HEIGHT;
+            } else if (cameraHeight < MIN_HEIGHT) {
+                cameraHeight = MIN_HEIGHT;
+            }
+            
+            cameraNode.setLocalTranslation(0, cameraHeight, cameraHeight * anglePerZ);
         }
     }
 

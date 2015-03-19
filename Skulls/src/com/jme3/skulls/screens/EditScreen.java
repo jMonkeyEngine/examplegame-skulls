@@ -392,6 +392,19 @@ public class EditScreen extends AbstractScreen implements PickListener {
 
         }
     }
+    
+    /**
+     * Make the camera pan to a direction
+     * @param left
+     * @param up 
+     */
+    protected void doPanCamera(float left, float up) {
+        camera.getLeft().mult(left * dragSpeed, vector);
+        vector.scaleAdd(up * dragSpeed, camera.getUp(), vector);
+        vector.multLocal(camera.getLocation().distance(focus));
+        camera.setLocation(camera.getLocation().add(vector));
+        focus.addLocal(vector);
+    }
 
     @Override
     protected void pause() {

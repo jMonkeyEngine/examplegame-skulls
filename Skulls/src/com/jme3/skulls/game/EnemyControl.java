@@ -66,31 +66,31 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
     private void init() {
         if (type == TYPE_YOUNG) {
             spatial.setLocalScale(0.8f);
-            animationSpeed = 2f;
-            moveSpeed = 3f;
+            animationSpeed = 2.4f;
+            moveSpeed = 3.3f;
             turnSpeed = 1f;
             growthTime = (float) FastMath.nextRandomInt(800, 1000);
             growTimer = new Timer(growthTime);
 
         } else if (type == TYPE_MALE) {
             spatial.setLocalScale(1f);
-            animationSpeed = 1f;
-            moveSpeed = 1.5f;
+            animationSpeed = 1.8f;
+            moveSpeed = 2.5f;
             turnSpeed = 1f;
             growthTime = 0f;
             growTimer = null;
 
         } else if (type == TYPE_FEMALE) {
             spatial.setLocalScale(1f);
-            animationSpeed = 1f;
-            moveSpeed = 1.5f;
+            animationSpeed = 1.8f;
+            moveSpeed = 2.5f;
             turnSpeed = 1f;
             growthTime = 0f;
             growTimer = null;
 
         } else if (type == TYPE_MUTATED) {
-            animationSpeed = 2f;
-            moveSpeed = 3f;
+            animationSpeed = 2.4f;
+            moveSpeed = 3.3f;
             turnSpeed = 1f;
             growthTime = 0f;
             growTimer = null;            

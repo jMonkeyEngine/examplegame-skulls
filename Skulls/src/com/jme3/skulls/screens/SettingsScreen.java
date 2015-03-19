@@ -129,8 +129,7 @@ public class SettingsScreen extends AbstractScreen {
 
     @Override
     protected void load() {
-        baseApplication.getViewPort().setBackgroundColor(ColorRGBA.DarkGray);
-        
+       
         if (baseApplication.getGameSaves().getGameData().isSoundOn()) {
             soundButton.setSelected(true);
         } else {

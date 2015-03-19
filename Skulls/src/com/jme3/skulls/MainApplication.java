@@ -94,14 +94,20 @@ public class MainApplication extends Base3DApplication {
         soundManager.loadSoundFx("mutant", "Sounds/SFX/Powers/Mutant/217282__jarredgibb__zombie4.ogg");
         soundManager.setSoundVolume("mutant", 0.6f);
         
+        soundManager.loadSoundFx("acid", "Sounds/SFX/Powers/Acid-gas/acid_burn_sizzle.ogg");
+        soundManager.setSoundVolume("acid", 0.6f);
+        
+        soundManager.loadSoundFx("spawn", "Sounds/SFX/Misc/Spawn/spawn-miniskull.ogg");
+        soundManager.setSoundVolume("spawn", 0.6f);
+        
         
         //Music
         
         soundManager.loadMusic("menu", "Sounds/Music/Dark_Fun.ogg");
-        soundManager.setMusicVolume("menu", 0.3f);
+        soundManager.setMusicVolume("menu", 0.2f);
 
         soundManager.loadMusic("level", "Sounds/Music/haunted_village.ogg");
-        soundManager.setMusicVolume("level", 0.3f);
+        soundManager.setMusicVolume("level", 0.2f);
 
     }
 
@@ -119,14 +125,18 @@ public class MainApplication extends Base3DApplication {
         //Here we preload models and materials that might be shared between levels.
         //It is not needed one can still call the assetmanager to load models.
 
-        modelManager.loadMaterial("Models/enemies/skeleton/skeleton.j3m");
-        modelManager.loadMaterial("Materials/tile-blank.j3m");
+//        modelManager.loadMaterial("Models/enemies/skeleton/skeleton.j3m");
+//        modelManager.loadMaterial("Materials/tile-blank.j3m");
         modelManager.loadMaterial("Materials/tile-enemy.j3m");
+        modelManager.loadMaterial("Materials/tile-floor.j3m");
+        modelManager.loadMaterial("Materials/tile-wall.j3m");
+        modelManager.loadMaterial("Models/enemies/enemies.j3m");
 
-        modelManager.loadModel("Models/enemies/ghost/ghost.j3o");
-        modelManager.loadModel("Models/enemies/mummy/mummy.j3o");
-        modelManager.loadModel("Models/enemies/skeleton/skeleton.j3o");
-        modelManager.loadModel("Models/enemies/zombie/zombie.j3o");
+        modelManager.loadModel("Models/enemies/ghost.j3o");
+        modelManager.loadModel("Models/enemies/mummy.j3o");
+        modelManager.loadModel("Models/enemies/skeleton.j3o");
+        modelManager.loadModel("Models/enemies/zombie.j3o");
+        
         modelManager.loadModel("Models/enemies/shadow.j3o");
 
         modelManager.loadModel("Models/powers/poison.j3o");
@@ -140,10 +150,11 @@ public class MainApplication extends Base3DApplication {
         modelManager.loadModel("Models/powers/acid.j3o");
         modelManager.loadModel("Models/powers/lantern/lantern.j3o");
 
-        modelManager.loadModel("Models/static/dungeon.j3o");
-        modelManager.loadMaterial("Models/static/dungeon.j3m");
+//        modelManager.loadModel("Models/static/dungeon.j3o");
+//        modelManager.loadMaterial("Models/static/dungeon.j3m");
 
-
+        modelManager.loadModel("Models/static/dungeon_pixel.j3o");
+        modelManager.loadMaterial("Models/static/dungeon_pixel.j3m");
 
     }
 
