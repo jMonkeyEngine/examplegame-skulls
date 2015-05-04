@@ -48,7 +48,7 @@ public class ScoreDialog extends PopupDialog {
         createPowerButton("Interface/icons/poison.png", Player.POWER_POIZON, 10);
         createPowerButton("Interface/icons/type-b.png", Player.POWER_MALE, 10);
         createPowerButton("Interface/icons/type-a.png", Player.POWER_FEMALE, 10);
-        createPowerButton("Interface/icons/blockade.png", Player.POWER_STOP, 3);
+        createPowerButton("Interface/icons/blockade.png", Player.POWER_STOP, 6);
         createPowerButton("Interface/icons/mutant.png", Player.POWER_MUTATION, 25);        
         
         powersPanel.layout();

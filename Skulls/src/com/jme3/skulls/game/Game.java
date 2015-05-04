@@ -54,7 +54,7 @@ public class Game extends SimpleCollisionGame {
     public static final String FLOOR = "floor";
     public static final String ENEMY = "enemy";
     public static float TILE_SIZE = 2;
-    public static int MAP_SIZE = 24;
+    public static int MAP_SIZE = 32;
     private Tile map[][] = new Tile[MAP_SIZE][MAP_SIZE];
     private boolean edit = false;
     private float enemyHeight = 0.25f;
@@ -63,12 +63,12 @@ public class Game extends SimpleCollisionGame {
      * This property will keep track of all enemies in the level.
      */
     private ArrayList<EnemyControl> enemies = new ArrayList<EnemyControl>();
-    public static int MAX_ENEMIES = 20;
+    public static int MAX_ENEMIES = 40;
     /**
      * This will be uses to place the initial enemies on the map
      */
-    private int initialMaleCount = 2;
-    private int initialFemaleCount = 2;
+    private int initialMaleCount = 5;
+    private int initialFemaleCount = 5;
     private Node dungeonPack;
     private Material dungeonMaterial;
     private Material enemiesMaterial;

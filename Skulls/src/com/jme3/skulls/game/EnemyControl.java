@@ -44,7 +44,7 @@ public class EnemyControl extends AbstractControl implements AnimationListener {
     private boolean turning = false;
     private Timer growTimer;
     private Timer pregnantTimer = new Timer(200);
-    private Timer matingTimer = new Timer(300);
+    private Timer matingTimer = new Timer(200);
     private Timer gasKillTimer;
     private Timer gasClearTimer = new Timer(50);
     private boolean underGasTile = false;
