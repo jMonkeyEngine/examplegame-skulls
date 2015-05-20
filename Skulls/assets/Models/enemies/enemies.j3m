@@ -1,8 +1,0 @@
-Material My Material : Common/MatDefs/Misc/Unshaded.j3md {
-     MaterialParameters {
-        ColorMap : Flip Models/enemies/enemies.png
-        AlphaDiscardThreshold : 0.5
-     }
-    AdditionalRenderState {
-    }
-}

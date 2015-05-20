@@ -126,18 +126,10 @@ public class MainApplication extends Base3DApplication {
         //Here we preload models and materials that might be shared between levels.
         //It is not needed one can still call the assetmanager to load models.
 
-//        modelManager.loadMaterial("Models/enemies/skeleton/skeleton.j3m");
-//        modelManager.loadMaterial("Materials/tile-blank.j3m");
         modelManager.loadMaterial("Materials/tile-enemy.j3m");
         modelManager.loadMaterial("Materials/tile-floor.j3m");
         modelManager.loadMaterial("Materials/tile-wall.j3m");
-        modelManager.loadMaterial("Models/enemies/enemies.j3m");
 
-//        modelManager.loadModel("Models/enemies/ghost.j3o");
-//        modelManager.loadModel("Models/enemies/mummy.j3o");
-//        modelManager.loadModel("Models/enemies/skeleton.j3o");
-//        modelManager.loadModel("Models/enemies/zombie.j3o");
-        
         modelManager.loadModel("Models/skulls/typeX.j3o");
         modelManager.loadModel("Models/skulls/typeY.j3o");
         modelManager.loadModel("Models/skulls/infant.j3o");
@@ -155,9 +147,6 @@ public class MainApplication extends Base3DApplication {
         modelManager.loadModel("Models/powers/gas.j3o");
         modelManager.loadModel("Models/powers/acid.j3o");
         modelManager.loadModel("Models/powers/lantern/lantern.j3o");
-
-//        modelManager.loadModel("Models/static/dungeon.j3o");
-//        modelManager.loadMaterial("Models/static/dungeon.j3m");
 
         modelManager.loadModel("Models/static/dungeon_pixel.j3o");
         modelManager.loadMaterial("Models/static/dungeon_pixel.j3m");
