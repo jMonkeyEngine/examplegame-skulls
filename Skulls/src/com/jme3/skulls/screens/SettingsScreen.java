@@ -9,7 +9,6 @@ import com.bruynhuis.galago.ui.Label;
 import com.bruynhuis.galago.ui.listener.TouchButtonAdapter;
 import com.bruynhuis.galago.ui.panel.GridPanel;
 import com.jme3.font.BitmapFont;
-import com.jme3.math.ColorRGBA;
 import com.jme3.skulls.ui.LargeButton;
 import com.jme3.skulls.ui.OnOffButton;
 
@@ -160,8 +159,7 @@ public class SettingsScreen extends AbstractScreen {
 
     @Override
     protected void pause() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
+    }
     
 }

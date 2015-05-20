@@ -4,6 +4,8 @@
  */
 package com.jme3.skulls.game;
 
+import com.jme3.skulls.game.powers.PowerControl;
+import com.jme3.skulls.game.enemies.EnemyControl;
 import com.bruynhuis.galago.app.BaseApplication;
 import com.bruynhuis.galago.games.platform.PlatformGame;
 import com.bruynhuis.galago.games.simplecollision.SimpleCollisionGame;
@@ -18,6 +20,10 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
+import com.jme3.skulls.game.enemies.EnemyInfantControl;
+import com.jme3.skulls.game.enemies.EnemyXControl;
+import com.jme3.skulls.game.enemies.EnemyYControl;
+import com.jme3.skulls.game.enemies.MutantControl;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.Platform;
 import java.io.File;
@@ -67,11 +73,11 @@ public class Game extends SimpleCollisionGame {
     /**
      * This will be uses to place the initial enemies on the map
      */
-    private int initialMaleCount = 5;
-    private int initialFemaleCount = 5;
+    private int initialTypeXCount = 5;
+    private int initialTypeYCount = 5;
     private Node dungeonPack;
     private Material dungeonMaterial;
-    private Material enemiesMaterial;
+//    private Material enemiesMaterial;
     private FilterPostProcessor fpp;
     private int score = 600;
 
@@ -82,7 +88,8 @@ public class Game extends SimpleCollisionGame {
 
         dungeonPack = (Node) baseApplication.getModelManager().getModel("Models/static/dungeon_pixel.j3o");
         dungeonMaterial = baseApplication.getModelManager().getMaterial("Models/static/dungeon_pixel.j3m");
-        enemiesMaterial = baseApplication.getModelManager().getMaterial("Models/enemies/enemies.j3m");
+        
+//        enemiesMaterial = baseApplication.getModelManager().getMaterial("Models/enemies/enemies.j3m");
     }
 
     private void loadFilter() {
@@ -112,12 +119,10 @@ public class Game extends SimpleCollisionGame {
 //            loadFilter();
         }
 
-        //Load the surface for optimization
-//        if (edit) {
+        //Load the surface
         Spatial surface = createSurface();
         surface.move(-TILE_SIZE * 0.5f, -0.02f, -TILE_SIZE * 0.5f);
         staticNode.attachChild(surface);
-//        }
 
         //Load the static level models into the scene
         for (int r = 0; r < map.length; r++) {
@@ -140,7 +145,6 @@ public class Game extends SimpleCollisionGame {
     protected Spatial getBlankTile() {
         Node tile = new Node(BLANK);
         Quad quad = new Quad(2, 2);
-//        Box quad = new Box(1, 1, 1);
         Geometry geometry = new Geometry(BLANK, quad);
         Material material = baseApplication.getModelManager().getMaterial("Materials/tile-floor.j3m");
         geometry.setMaterial(material);
@@ -150,6 +154,10 @@ public class Game extends SimpleCollisionGame {
         return tile;
     }
 
+    /**
+     * Create the surface quad
+     * @return 
+     */
     protected Spatial createSurface() {
         Quad quad = new Quad(MAP_SIZE * TILE_SIZE, MAP_SIZE * TILE_SIZE);
         Geometry geometry = new Geometry(BLANK, quad);
@@ -161,7 +169,7 @@ public class Game extends SimpleCollisionGame {
     }
 
     /**
-     * Return an initial enemy start point spatial
+     * Create a centered quad the size of a tile and apply a given material to it.
      *
      * @return
      */
@@ -211,6 +219,12 @@ public class Game extends SimpleCollisionGame {
         return map[x][z];
     }
 
+    /**
+     * Returns the closest tile to a given position in 3D space.
+     * @param x
+     * @param z
+     * @return 
+     */
     public Tile getClosestFloorTile(float x, float z) {
         Tile selectedTile = null;
         Vector3f clickPos = new Vector3f(x, 0, z);
@@ -240,6 +254,12 @@ public class Game extends SimpleCollisionGame {
         return selectedTile;
     }
 
+    /**
+     * Return the tile which is at a given contact point.
+     * @param x
+     * @param z
+     * @return 
+     */
     public Tile getTileFromContactPoint(float x, float z) {
         Tile selectedTile = null;
         Vector3f clickPos = new Vector3f(x, 0, z);
@@ -259,11 +279,6 @@ public class Game extends SimpleCollisionGame {
 
             }
         }
-
-        //If not a tile was selected we clear selection
-//        if (!selectedTile.getName().equals(FLOOR)) {
-//            selectedTile = null;
-//        }
 
         return selectedTile;
     }
@@ -380,19 +395,19 @@ public class Game extends SimpleCollisionGame {
      */
     protected void loadEnemy(Tile tile) {
         //Here we load specific type of enemies.
-        if (initialMaleCount > 0) {
+        if (initialTypeXCount > 0) {
             //Load initial male onces
-            loadMale(tile);
-            initialMaleCount--;
+            loadTypeX(tile);
+            initialTypeXCount--;
 
-        } else if (initialFemaleCount > 0) {
+        } else if (initialTypeYCount > 0) {
             //Load initial male onces
-            loadFemale(tile);
-            initialFemaleCount--;
+            loadTypeY(tile);
+            initialTypeYCount--;
 
         } else {
-            //Load initial young onces
-            loadYoung(tile);
+            //Load initial infant onces
+            loadInfant(tile);
         }
 
         if (enemies.size() >= MAX_ENEMIES) {
@@ -401,67 +416,83 @@ public class Game extends SimpleCollisionGame {
 
     }
 
-    public void loadMale(Tile tile) {
-        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/ghost.j3o");
-        enemySpatial.setMaterial(enemiesMaterial);
+    /**
+     * Load the type X enemy and add its relavant controller.
+     * @param tile 
+     */
+    public void loadTypeX(Tile tile) {
+//        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/ghost.j3o");
+//        enemySpatial.setMaterial(enemiesMaterial);
+        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/skulls/typeX.j3o");
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
         createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
-        EnemyControl ec = new EnemyControl(this, EnemyControl.TYPE_MALE, tile);
-        enemySpatial.addControl(ec);
-
-        enemies.add(ec);
-    }
-
-    public void loadFemale(Tile tile) {
-        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/mummy.j3o");
-        enemySpatial.setMaterial(enemiesMaterial);        
-        enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
-        createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
-
-        EnemyControl ec = new EnemyControl(this, EnemyControl.TYPE_FEMALE, tile);
-        enemySpatial.addControl(ec);
-
-        enemies.add(ec);
-    }
-
-    public void loadYoung(Tile tile) {
-        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/skeleton.j3o");
-        enemySpatial.setMaterial(enemiesMaterial);
-        enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
-        createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
-
-        EnemyControl ec = new EnemyControl(this, EnemyControl.TYPE_YOUNG, tile);
+        EnemyControl ec = new EnemyXControl(this, tile);
         enemySpatial.addControl(ec);
 
         enemies.add(ec);
     }
 
     /**
-     * Load a mutated enemy
+     * Load the type Y enemy and add its relavant controller.
+     * @param tile 
+     */
+    public void loadTypeY(Tile tile) {
+//        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/mummy.j3o");
+//        enemySpatial.setMaterial(enemiesMaterial);        
+        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/skulls/typeY.j3o");
+        enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
+        createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
+
+        EnemyControl ec = new EnemyYControl(this, tile);
+        enemySpatial.addControl(ec);
+
+        enemies.add(ec);
+    }
+
+    /**
+     * Load the infant type enemy and add its relavant controller.
+     * @param tile 
+     */
+    public void loadInfant(Tile tile) {
+//        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/skeleton.j3o");
+//        enemySpatial.setMaterial(enemiesMaterial);
+        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/skulls/infant.j3o");
+        enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
+        createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
+
+        EnemyControl ec = new EnemyInfantControl(this, tile);
+        enemySpatial.addControl(ec);
+
+        enemies.add(ec);
+    }
+
+    /**
+     * Load a mutant power
      *
      * @param tile
      */
-    public void loadMutated(Tile tile) {
-        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/zombie.j3o");
-        enemySpatial.setMaterial(enemiesMaterial);
+    public void loadMutant(Tile tile) {
+//        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/enemies/zombie.j3o");
+//        enemySpatial.setMaterial(enemiesMaterial);
+        Spatial enemySpatial = baseApplication.getModelManager().getModel("Models/skulls/mutant.j3o");
         enemySpatial.setLocalTranslation(new Vector3f(tile.getxPos() * TILE_SIZE, enemyHeight, tile.getzPos() * TILE_SIZE)); //Position the model on top of floor position
         createEnemy(enemySpatial, Vector3f.UNIT_XYZ);
 
         //Here we load specific type of enemies.
-        EnemyControl ec = new EnemyControl(this, EnemyControl.TYPE_MUTATED, tile);
+        EnemyControl ec = new MutantControl(this, tile);
         enemySpatial.addControl(ec);
     }
 
     /**
-     * This method will be called from a female enemy causing a young enemy to
+     * This method will be called from a type y enemy causing an infant enemy to
      * spawn.
      *
      * @param position
      */
-    public void spawnYoung(Tile tile) {
-        initialFemaleCount = 0;
-        initialMaleCount = 0;
+    public void spawnInfant(Tile tile) {
+        initialTypeYCount = 0;
+        initialTypeXCount = 0;
         baseApplication.getSoundManager().playSound("spawn");
         loadEnemy(tile);
 
@@ -489,15 +520,20 @@ public class Game extends SimpleCollisionGame {
         }
     }
 
+    /**
+     * Returns a spatial for a given power type. This is only used for placement of powers.
+     * @param powerType
+     * @return 
+     */
     public Spatial getPowerModel(String powerType) {
         Spatial spatial = null;
-        if (powerType.equals(Player.POWER_POIZON)) {
+        if (powerType.equals(Player.POWER_POISON)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/poison.j3o");
 
-        } else if (powerType.equals(Player.POWER_FEMALE)) {
+        } else if (powerType.equals(Player.POWER_SWITCH_TO_Y)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/plant1/plant1.j3o");
 
-        } else if (powerType.equals(Player.POWER_MALE)) {
+        } else if (powerType.equals(Player.POWER_SWITCH_TO_X)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/plant2/plant2.j3o");
 
         } else if (powerType.equals(Player.POWER_STOP)) {
@@ -512,9 +548,10 @@ public class Game extends SimpleCollisionGame {
         } else if (powerType.equals(Player.POWER_GAS)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/acid.j3o");
 
-        } else if (powerType.equals(Player.POWER_MUTATION)) {
-            spatial = baseApplication.getModelManager().getModel("Models/enemies/zombie.j3o");
-            spatial.setMaterial(enemiesMaterial);
+        } else if (powerType.equals(Player.POWER_MUTANT)) {
+//            spatial = baseApplication.getModelManager().getModel("Models/enemies/zombie.j3o");
+//            spatial.setMaterial(enemiesMaterial);
+            spatial = baseApplication.getModelManager().getModel("Models/skulls/mutant.j3o");
 
         }
         return spatial;
@@ -529,13 +566,13 @@ public class Game extends SimpleCollisionGame {
     public PowerControl loadPower(String powerType, Tile tile) {
         Spatial spatial = null;
 
-        if (powerType.equals(Player.POWER_POIZON)) {
+        if (powerType.equals(Player.POWER_POISON)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/poison.j3o");
 
-        } else if (powerType.equals(Player.POWER_FEMALE)) {
+        } else if (powerType.equals(Player.POWER_SWITCH_TO_Y)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/plant1/plant1.j3o");
 
-        } else if (powerType.equals(Player.POWER_MALE)) {
+        } else if (powerType.equals(Player.POWER_SWITCH_TO_X)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/plant2/plant2.j3o");
 
         } else if (powerType.equals(Player.POWER_STOP)) {
@@ -550,8 +587,8 @@ public class Game extends SimpleCollisionGame {
         } else if (powerType.equals(Player.POWER_GAS)) {
             spatial = baseApplication.getModelManager().getModel("Models/powers/gas.j3o");
 
-        } else if (powerType.equals(Player.POWER_MUTATION)) {
-            loadMutated(tile);
+        } else if (powerType.equals(Player.POWER_MUTANT)) {
+            loadMutant(tile);
             return null;
         }
 
@@ -600,6 +637,12 @@ public class Game extends SimpleCollisionGame {
         return tile;
     }
 
+    /**
+     * This method will return all tiles arround a given tile.
+     * @param currentTile
+     * @param fromTile
+     * @return 
+     */
     public ArrayList<Tile> getAllAdjacentTile(Tile currentTile, Tile fromTile) {
 
         ArrayList<Tile> adjacentTiles = new ArrayList<Tile>();

@@ -15,12 +15,13 @@ import com.jme3.math.ColorRGBA;
  */
 public class LargeButton extends TouchButton {
     
+    private static final float scale = 1.0f;
+    
     public LargeButton(Panel panel, String id, String text) {
-        super(panel, id, "Interface/largebutton.png", 254, 56);
+        super(panel, id, "Interface/largebutton.png", 254*scale, 56*scale);
         setFontSize(25);
         setText(text);
         addEffect(new TouchEffect(this));
         setTextColor(ColorRGBA.LightGray);
-//        panel.add(this);
     }
 }

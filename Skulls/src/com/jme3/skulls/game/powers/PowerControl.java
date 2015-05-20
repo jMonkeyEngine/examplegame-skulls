@@ -1,9 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.jme3.skulls.game;
+package com.jme3.skulls.game.powers;
 
+import com.jme3.skulls.game.enemies.EnemyControl;
 import com.bruynhuis.galago.util.Timer;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -15,11 +12,16 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.skulls.MainApplication;
+import com.jme3.skulls.game.Game;
+import com.jme3.skulls.game.Player;
+import com.jme3.skulls.game.Tile;
+import com.jme3.skulls.game.enemies.EnemyXControl;
+import com.jme3.skulls.game.enemies.EnemyYControl;
 import java.util.ArrayList;
 
 /**
- * The EnemyControl will control all movement and behavior of the enemies
- * running around.
+ * The PowerControl will control all power behaviours that are used.
+ * This control is attached to a power spatial.
  *
  *
  * @author nidebruyn
@@ -55,7 +57,7 @@ public class PowerControl extends AbstractControl {
 
     private void init() {
 
-        if (type.equals(Player.POWER_POIZON)) {
+        if (type.equals(Player.POWER_POISON)) {
             active = true;
             game.getBaseApplication().getSoundManager().playSound("bubble");
         }
@@ -93,15 +95,15 @@ public class PowerControl extends AbstractControl {
 
         }
         
-        if (type.equals(Player.POWER_FEMALE)) {
+        if (type.equals(Player.POWER_SWITCH_TO_Y)) {
             active = true;
         }
         
-        if (type.equals(Player.POWER_MALE)) {
+        if (type.equals(Player.POWER_SWITCH_TO_X)) {
             active = true;
         }
         
-        if (type.equals(Player.POWER_MUTATION)) {
+        if (type.equals(Player.POWER_MUTANT)) {
             active = true;
         }
         
@@ -293,23 +295,6 @@ public class PowerControl extends AbstractControl {
 
     }
 
-//    /**
-//     * Will make the enemy turn just there.
-//     */
-//    public void move() {
-//        int size = game.getAllAdjacentTile(targetTile, fromTile).size();
-//
-//        if (size == 1) {
-//            nextTile = game.getNextAdjacentTile(targetTile, fromTile);
-//            fromTile = targetTile;
-//            targetTile = nextTile;
-//            spatial.setLocalTranslation(new Vector3f(targetTile.getxPos() * TILE_SIZE, 0, targetTile.getzPos() * TILE_SIZE));
-//        } else {
-//            doDispose();
-//        }
-//
-//
-//    }
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
     }
@@ -321,25 +306,20 @@ public class PowerControl extends AbstractControl {
      */
     public void doEffect(EnemyControl enemyControl) {
 
-        if (type.equals(Player.POWER_POIZON)) {
+        if (type.equals(Player.POWER_POISON)) {
             enemyControl.doDie();
             game.addScore(10);            
             doDispose();
 
-        } else if (type.equals(Player.POWER_FEMALE)) {
-//            if (!enemyControl.isChild()) {
+        } else if (type.equals(Player.POWER_SWITCH_TO_Y)) {
             game.getBaseApplication().getSoundManager().playSound("switch");
-            enemyControl.changeToFemale();
+            enemyControl.changeToTypeY();
             doDispose();
-//            }
 
-
-        } else if (type.equals(Player.POWER_MALE)) {
-//            if (!enemyControl.isChild()) {
+        } else if (type.equals(Player.POWER_SWITCH_TO_X)) {
             game.getBaseApplication().getSoundManager().playSound("switch");
-            enemyControl.changeToMale();
+            enemyControl.changeToTypeX();
             doDispose();
-//            }
 
         } else if (type.equals(Player.POWER_STOP)) {
             if (active) {
@@ -361,12 +341,21 @@ public class PowerControl extends AbstractControl {
             }
 
         } else if (type.equals(Player.POWER_CURSE)) {
-            if (active) {
-                if (!enemyControl.isCursed()) {
+            if (active && (enemyControl instanceof EnemyYControl)) {
+                EnemyYControl enemyYControl = (EnemyYControl) enemyControl;
+                if (!enemyYControl.isCursed()) {
                     game.getBaseApplication().getSoundManager().playSound("curse");
                 }
 
-                enemyControl.setCursed(true);
+                enemyYControl.setCursed(true);
+                
+            } else if (active && (enemyControl instanceof EnemyXControl)) {
+                EnemyXControl enemyXControl = (EnemyXControl) enemyControl;
+                if (!enemyXControl.isCursed()) {
+                    game.getBaseApplication().getSoundManager().playSound("curse");
+                }
+
+                enemyXControl.setCursed(true);
             }
 
         } else if (type.equals(Player.POWER_GAS)) {

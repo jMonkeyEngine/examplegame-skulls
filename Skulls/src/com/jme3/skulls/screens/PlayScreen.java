@@ -18,10 +18,10 @@ import com.bruynhuis.galago.ui.listener.TouchButtonAdapter;
 import com.bruynhuis.galago.util.Timer;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.skulls.game.EnemyControl;
+import com.jme3.skulls.game.enemies.EnemyControl;
 import com.jme3.skulls.game.Game;
 import com.jme3.skulls.game.Player;
-import com.jme3.skulls.game.PowerControl;
+import com.jme3.skulls.game.powers.PowerControl;
 import com.jme3.skulls.game.Tile;
 import com.jme3.skulls.ui.GameOverDialog;
 import com.jme3.skulls.ui.PauseDialog;
@@ -34,6 +34,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireBox;
+import com.jme3.skulls.game.enemies.EnemyXControl;
+import com.jme3.skulls.game.enemies.EnemyYControl;
+import com.jme3.skulls.game.enemies.MutantControl;
 
 /**
  * This will be the play screen. This screen will show when a player decided to
@@ -71,7 +74,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
 
     @Override
     protected void init() {
-        
+
         Image background = new Image(hudPanel, "Interface/darkness.png");
         background.center();
         background.setDepthPosition(-10f);
@@ -84,16 +87,16 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
                 if (isActive()) {
                     log(uid);
                     player.setSelectedPower(uid);
-                    
+
                     //First remove the old spatial
                     if (powerSpatial != null) {
                         powerSpatial.removeFromParent();
                     }
-                    
+
                     powerSpatial = game.getPowerModel(uid);
                     powerSpatial.addControl(new FlickerControl(0.6f));
                     rootNode.attachChild(powerSpatial);
-                    
+
                 }
             }
         });
@@ -219,7 +222,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     @Override
     protected void load() {
         /*
-         * The loadStart method is called very first when ever the user calls to go to this screen.
+         * The load method is called very first when ever the user calls to go to this screen.
          * A black panel will by default be shown over the screen
          * One must normally load the level and player and inputs and camera stuff here.
          */
@@ -252,18 +255,21 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
         scoreDialog.hide();
 
         //create a market geometry
-        WireBox wb = new WireBox(Game.TILE_SIZE*0.5f, 0.02f, Game.TILE_SIZE*0.5f);
+        WireBox wb = new WireBox(Game.TILE_SIZE * 0.5f, 0.02f, Game.TILE_SIZE * 0.5f);
         wb.setLineWidth(2);
         marker = new Geometry("MARKER", wb);
         marker.setMaterial(baseApplication.getAssetManager().loadMaterial("Common/Materials/RedColor.j3m"));
         rootNode.attachChild(marker);
-        
+
         cameraShaker = new CameraShaker(camera, rootNode);
 
     }
 
+    /**
+     * Load how the camera will view
+     */
     protected void loadCameraSettings() {
-        float angleY = FastMath.DEG_TO_RAD * 0f;        
+        float angleY = FastMath.DEG_TO_RAD * 0f;
         Vector3f centerPoint = new Vector3f((Game.MAP_SIZE * Game.TILE_SIZE) * 0.5f, 0, (Game.MAP_SIZE * Game.TILE_SIZE) * 0.5f);
 
         cameraJointNode = new Node("camerajoint");
@@ -281,7 +287,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     protected void show() {
         setPreviousScreen(null);
         /*
-         * loadDone is called when ever the screen has finished loading the start stuff
+         * show is called when ever the screen has finished loading the start stuff
          * and the window is visible
          */
 
@@ -293,7 +299,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     @Override
     protected void exit() {
         /*
-         * This exitDone method is called when the user leaves the current screen.
+         * This exit method is called when the user leaves the current screen.
          * I a screen such as the play screen one will normally close the level or remove all
          * spatials and controls and lights, etc from the rootNode
          */
@@ -394,17 +400,27 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
 
     }
 
+    /**
+     * This method is called when it is game over
+     */
     public void doGameOver() {
         scoreDialog.setEnemyCount(Game.MAX_ENEMIES);
         game.pause();
         gameOverDialog.show();
     }
 
+    /**
+     * This method is called when the player has finished the game by destroying all enemies
+     */
     public void doGameCompleted() {
         game.pause();
         winDialog.show(game.getScore(), 0);
     }
 
+    /**
+     * Called when ever the score of the game has changed
+     * @param score 
+     */
     public void doScoreChanged(int score) {
 //        log("Game completed: " + score);
         scoreDialog.setEnemyCount(game.getEnemies().size());
@@ -412,62 +428,62 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     }
 
     public void doCollisionPlayerWithStatic(Spatial collided, Spatial collider) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     public void doCollisionPlayerWithPickup(Spatial collided, Spatial collider) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     public void doCollisionPlayerWithEnemy(Spatial collided, Spatial collider) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     public void doCollisionEnemyWithEnemy(Spatial collided, Spatial collider) {
-        if (collided.getControl(EnemyControl.class) != null) {
-            EnemyControl ec1 = collided.getControl(EnemyControl.class);
 
-            if (collider.getControl(EnemyControl.class) != null) {
-                EnemyControl ec2 = collider.getControl(EnemyControl.class);
-
-                //Check if it is a female with male collision
-                if (ec1.isMale() && ec2.isFemale() && !ec2.isPregnant()) {
-                    ec1.startMating();
-                    ec2.startMating();
-
-                } else if (ec2.isMale() && ec1.isFemale() && !ec1.isPregnant()) {
-                    ec1.startMating();
-                    ec2.startMating();
-
-                } else if (ec1.isMutated() && !ec2.isMutated()) {
-                    ec2.doDie();
-                    ec1.doMakeKill();
-                    game.addScore(5);
-
-                } else if (ec2.isMutated() && !ec1.isMutated()) {
-                    ec1.doDie();
-                    ec2.doMakeKill();
-                    game.addScore(5);
-
-                }
-
-            }
+        //Check if a type x collided with a type y them start the ritual
+        if (collided.getControl(EnemyXControl.class) != null
+                && collider.getControl(EnemyYControl.class) != null
+                && !collider.getControl(EnemyYControl.class).isPregnant()) {
+            collided.getControl(EnemyXControl.class).startRitual();
+            collider.getControl(EnemyYControl.class).startRitual();
+            return;
         }
+
+        //Check if a type x collided with a type y them start the ritual
+        if (collider.getControl(EnemyXControl.class) != null
+                && collided.getControl(EnemyYControl.class) != null
+                && !collided.getControl(EnemyYControl.class).isPregnant()) {
+            collider.getControl(EnemyXControl.class).startRitual();
+            collided.getControl(EnemyYControl.class).startRitual();
+            return;
+        }
+
+        //Check if a mutant powered enemy collided with any other enemy
+        if (collided.getControl(MutantControl.class) != null && collider.getControl(MutantControl.class) == null) {
+            collider.getControl(EnemyControl.class).doDie();
+            collided.getControl(MutantControl.class).doMakeKill();
+            game.addScore(5);
+            return;
+        }
+        if (collider.getControl(MutantControl.class) != null && collided.getControl(MutantControl.class) == null) {
+            collided.getControl(EnemyControl.class).doDie();
+            collider.getControl(MutantControl.class).doMakeKill();
+            game.addScore(5);
+            return;
+        }
+
     }
 
     public void doCollisionPlayerWithObstacle(Spatial collided, Spatial collider) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     public void doCollisionEnemyWithStatic(Spatial collided, Spatial collider) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//        log(collided.getName() + " collided with " + collider.getName());
+
     }
 
     public void doCollisionEnemyWithObstacle(Spatial collided, Spatial collider) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//        log(collided.getName() + " collided with " + collider.getName());
-
         //Here we must notify the enemy to change direction
         if (collided.getControl(EnemyControl.class) != null) {
             EnemyControl ec = collided.getControl(EnemyControl.class);
@@ -501,7 +517,7 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
                 Tile selectedTile = game.getClosestFloorTile(pickEvent.getContactPoint().x, pickEvent.getContactPoint().z);
 
                 //Only if a valid tile was selected
-                if (selectedTile != null) {                    
+                if (selectedTile != null) {
                     game.loadPower(player.getSelectedPower(), selectedTile);
                     scoreDialog.usePower(player.getSelectedPower());
                     player.setSelectedPower(null);
@@ -560,50 +576,49 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
         }
 
         if (isActive() && game.isStarted() && !game.isPaused() && pickEvent.getContactPoint() != null) {
-//            log("Mouse at: " + pickEvent.getContactPoint());
-            
+
             Tile selectedTile = game.getTileFromContactPoint(pickEvent.getContactPoint().x, pickEvent.getContactPoint().z);
 
             //Only if a valid tile was selected
             if (selectedTile != null) {
                 marker.setCullHint(Spatial.CullHint.Never);
                 marker.setLocalTranslation(new Vector3f(selectedTile.getxPos() * Game.TILE_SIZE, 0.1f, selectedTile.getzPos() * Game.TILE_SIZE));
-                
+
                 if (selectedTile.getName().equals(Game.FLOOR)) {
                     marker.getMaterial().setColor("Color", ColorRGBA.Green);
                 } else {
                     marker.getMaterial().setColor("Color", ColorRGBA.Red);
                 }
-                
+
                 if (powerSpatial != null) {
                     powerSpatial.setLocalTranslation(new Vector3f(selectedTile.getxPos() * Game.TILE_SIZE, 0.1f, selectedTile.getzPos() * Game.TILE_SIZE));
                     powerSpatial.setLocalTranslation(marker.getLocalTranslation());
-                    
+
                 }
-                
+
             } else {
                 marker.setCullHint(Spatial.CullHint.Always);
-                
+
                 if (powerSpatial != null) {
                     marker.setCullHint(Spatial.CullHint.Always);
                 }
             }
         }
-        
+
         //Do the camera zooming
         if (isActive()) {
             if (pickEvent.isZoomUp()) {
-                cameraHeight += 1f;                
+                cameraHeight += 1f;
             } else if (pickEvent.isZoomDown()) {
-                cameraHeight -= 1f;                
+                cameraHeight -= 1f;
             }
-            
+
             if (cameraHeight > MAX_HEIGHT) {
                 cameraHeight = MAX_HEIGHT;
             } else if (cameraHeight < MIN_HEIGHT) {
                 cameraHeight = MIN_HEIGHT;
             }
-            
+
             cameraNode.setLocalTranslation(0, cameraHeight, cameraHeight * anglePerZ);
         }
     }
@@ -612,16 +627,21 @@ public class PlayScreen extends AbstractScreen implements SimpleCollisionGameLis
     protected void pause() {
         doPauseGame();
     }
-    
+
+    /**
+     * This method is called when ever one wants the screen to shake.
+     * Currently it must happen when a bomb explodes
+     * @param amount
+     * @param duration 
+     */
     public void shakeCamera(float amount, float duration) {
         cameraNode.setEnabled(false);
         cameraShaker.setCameraShakeListener(new CameraShakeListener() {
-
             public void done() {
                 cameraNode.setEnabled(true);
             }
         });
-        
+
         cameraShaker.shake(amount, duration);
     }
 }

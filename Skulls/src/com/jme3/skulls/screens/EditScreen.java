@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.skulls.screens;
 
 import static com.bruynhuis.galago.games.tilemap.TileMapGame.BLANK;
@@ -30,10 +26,9 @@ import com.jme3.scene.debug.WireBox;
 import com.jme3.skulls.game.Tile;
 
 /**
- * This will be the settings screen. The player can switch music on or off here.
- * This screen will have a Heading It will have 2 toggle button options (Music
- * :on/off, Sound : on/off) It will also have a back/menu button It might also
- * have some background image.
+ * The edit screen is where the developer or level designer will setup levels for the game.
+ * These levels are all saved under his user name directory on his file system and when a level is finished
+ * these levels must be added to the game level setup.
  *
  * @author nidebruyn
  */

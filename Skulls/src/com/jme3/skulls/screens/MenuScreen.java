@@ -7,6 +7,9 @@ package com.jme3.skulls.screens;
 import com.bruynhuis.galago.screen.AbstractScreen;
 import com.bruynhuis.galago.ui.Image;
 import com.bruynhuis.galago.ui.listener.TouchButtonAdapter;
+import com.jme3.math.FastMath;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
 import com.jme3.skulls.ui.LargeButton;
 
 /**
@@ -25,12 +28,14 @@ public class MenuScreen extends AbstractScreen {
     private LargeButton settingsButton;
     private LargeButton editButton;
     private LargeButton exitButton;
+    private Spatial spatial1;
+    private Spatial spatial2;
 
     @Override
     protected void init() {
         
-        heading = new Image(hudPanel, "Interface/heading.png", 1024, 256, true);
-        heading.centerTop(0, 20);
+        heading = new Image(hudPanel, "Interface/heading.png", 488, 206, true);
+        heading.centerTop(0, 0);
         
         playButton = new LargeButton(hudPanel, "play_menu_button", "Play");
         playButton.centerAt(0, 50);
@@ -101,6 +106,19 @@ public class MenuScreen extends AbstractScreen {
     @Override
     protected void load() {
         baseApplication.getSoundManager().playMusic("menu");
+        
+        spatial1 = baseApplication.getAssetManager().loadModel("Models/skulls/typeX.j3o");
+        spatial1.setLocalTranslation(-2, 0, 0);
+        spatial1.rotate(0, 20* FastMath.DEG_TO_RAD, 0);
+        rootNode.attachChild(spatial1);
+        
+        spatial2 = baseApplication.getAssetManager().loadModel("Models/skulls/typeY.j3o");
+        spatial2.setLocalTranslation(2, 0, 0);
+        spatial2.rotate(0, -20* FastMath.DEG_TO_RAD, 0);
+        rootNode.attachChild(spatial2);
+        
+        camera.setLocation(new Vector3f(0, -0.7f, 5));
+        camera.lookAt(new Vector3f(0, -0.7f, 0), Vector3f.UNIT_Y);
 
     }
 
@@ -112,12 +130,14 @@ public class MenuScreen extends AbstractScreen {
 
     @Override
     protected void exit() {
+        spatial1.removeFromParent();
+        spatial2.removeFromParent();
 
     }
 
     @Override
     protected void pause() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     

@@ -41,6 +41,7 @@ public class MainApplication extends Base3DApplication {
         //This method is called before any screen or game data is loaded
         BACKGROUND_COLOR = ColorRGBA.Black;
         splashInfoMessage = "jMonkeyEngine3 Example Game";
+//        setRecordVideo(true);
 
     }
 
@@ -132,10 +133,15 @@ public class MainApplication extends Base3DApplication {
         modelManager.loadMaterial("Materials/tile-wall.j3m");
         modelManager.loadMaterial("Models/enemies/enemies.j3m");
 
-        modelManager.loadModel("Models/enemies/ghost.j3o");
-        modelManager.loadModel("Models/enemies/mummy.j3o");
-        modelManager.loadModel("Models/enemies/skeleton.j3o");
-        modelManager.loadModel("Models/enemies/zombie.j3o");
+//        modelManager.loadModel("Models/enemies/ghost.j3o");
+//        modelManager.loadModel("Models/enemies/mummy.j3o");
+//        modelManager.loadModel("Models/enemies/skeleton.j3o");
+//        modelManager.loadModel("Models/enemies/zombie.j3o");
+        
+        modelManager.loadModel("Models/skulls/typeX.j3o");
+        modelManager.loadModel("Models/skulls/typeY.j3o");
+        modelManager.loadModel("Models/skulls/infant.j3o");
+        modelManager.loadModel("Models/skulls/mutant.j3o");
         
         modelManager.loadModel("Models/enemies/shadow.j3o");
 

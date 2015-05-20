@@ -23,11 +23,11 @@ public class Player extends SimpleCollisionPlayer {
     public static final String POWER_BOMB = "power_bomb";
     public static final String POWER_GAS = "power_gas";
     public static final String POWER_CURSE = "power_curse";
-    public static final String POWER_POIZON = "power_poison";
-    public static final String POWER_MALE = "power_male";
-    public static final String POWER_FEMALE = "power_female";
+    public static final String POWER_POISON = "power_poison";
+    public static final String POWER_SWITCH_TO_X = "power_switch_to_x";
+    public static final String POWER_SWITCH_TO_Y = "power_switch_to_y";
     public static final String POWER_STOP = "power_stop";
-    public static final String POWER_MUTATION = "power_mutate";
+    public static final String POWER_MUTANT = "power_mutant";
     
     private String selectedPower;
 
