@@ -10,8 +10,6 @@ mainClassName = "com.jme3.skulls.MainApplication"
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven { url 'https://jitpack.io' }
 }
 
 project.ext {
