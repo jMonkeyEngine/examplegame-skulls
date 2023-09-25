@@ -1,0 +1,75 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'com.jme3'
+version '1.0'
+
+mainClassName = "com.jme3.skulls.MainApplication"
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
+
+project.ext {
+  jmeVer = '3.6.1-stable'
+}
+
+project(":assets") {
+    apply plugin: "java"
+
+    buildDir = rootProject.file("build/assets")
+
+    sourceSets {
+        main {
+            resources {
+                srcDir '.'
+            }
+        }
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+}
+
+dependencies {
+
+  // Core JME
+  implementation "org.jmonkeyengine:jme3-core:$jmeVer"
+  implementation "org.jmonkeyengine:jme3-desktop:$jmeVer"
+  implementation "org.jmonkeyengine:jme3-awt-dialogs:$jmeVer"
+  implementation "org.jmonkeyengine:jme3-lwjgl3:$jmeVer"
+
+  // Suppress errors / warnings building in SDK
+  implementation "org.jmonkeyengine:jme3-jogg:$jmeVer"
+  implementation "org.jmonkeyengine:jme3-plugins:$jmeVer"
+
+  // Additional Libraries
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation "org.jmonkeyengine:jme3-jbullet:$jmeVer"
+
+  // Assets sub-project
+  runtimeOnly project(':assets')
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': "$mainClassName"
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+wrapper {
+    gradleVersion = '7.6'
+}
